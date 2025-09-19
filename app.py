@@ -218,6 +218,15 @@ if not st.session_state.selected.empty:
                 vals = pd.to_numeric(selected_df[metric], errors="coerce")
                 plot_vals = vals
 
+                # --- 평균/표준편차 (NaN 제외) ---
+                base = vals.dropna()
+                if not base.empty:
+                    mean_i = float(base.mean())
+                    std_i  = float(base.std(ddof=1))
+                    ax.axhline(mean_i, color=colors[i], linestyle="--", linewidth=2,
+                            label=f"{legend_map[metric]} 평균: {mean_i:.2f}")
+                    ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i], label = '주요 분포 범위(±1σ)')
+
                 # --- 막대 ---
                 bars = ax.bar(x + i*bar_width, plot_vals.fillna(0), width=bar_width, color=colors[i])
 
@@ -236,18 +245,6 @@ if not st.session_state.selected.empty:
                 )
                 ax.set_ylim(0, all_max * 1.15)
 
-                # --- 평균 & 표준편차 (해당 metric 기준) ---
-                base = vals.dropna()
-                if not base.empty:
-                    mean_i = float(base.mean())
-                    std_i  = float(base.std(ddof=1))
-
-                    # 평균선
-                    ax.axhline(mean_i, color=colors[i], linestyle="--", linewidth=2,
-                            label=f"{legend_map[metric]} 평균: {mean_i:.2f}")
-
-                    # ±1σ 영역
-                    ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i], label = '주요 분포 범위(±1σ)')
 
         # --- X축 라벨 ---
         ax.set_xticks(x + bar_width/2)
@@ -262,16 +259,19 @@ if not st.session_state.selected.empty:
     else:
         plot_values = values_raw
         colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
+
+        
+        # 평균선/±1σ
+        if np.isfinite(mean) and np.isfinite(std):
+            ax.axhline(mean, color="black", linestyle="--", linewidth=2, label=f"평균: {mean:.2f}")
+            ax.axhspan(mean - std, mean + std, alpha=0.18, color="#ffcccc", label="주요 분포 범위(±1σ)")
+            
         bars = ax.bar(labels_wrapped, plot_values.fillna(0), color=colors, width = 0.3)
 
         # --- y축 상단 여백 확보 ---
         ymax = plot_values.max() if len(plot_values) else 1
         ax.set_ylim(0, ymax * 1.15)   # 값의 15% 여유 공간 확보
 
-        # 평균선/±1σ
-        if np.isfinite(mean) and np.isfinite(std):
-            ax.axhline(mean, color="black", linestyle="--", linewidth=2, label=f"평균: {mean:.2f}")
-            ax.axhspan(mean - std, mean + std, alpha=0.18, color="#ffcccc", label="주요 분포 범위(±1σ)")
 
         # 값 라벨
         def _fmt(v):
