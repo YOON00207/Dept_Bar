@@ -157,139 +157,7 @@ if st.session_state.selected.shape[0] > 0:
 # 9. 그래프 그리기  (줄바꿈/폰트/사이즈 강화)
 # ---------------------------------------
 
-# def wrap_label(s, width=10):
-#     s = str(s)
-#     return "\n".join(textwrap.wrap(s, width=width, break_long_words=False)) if s else s
-
-# def is_percent_metric(name, series):
-#     if "%" in str(name):
-#         return True
-#     s = pd.to_numeric(series, errors="coerce").dropna()
-#     return (not s.empty) and s.min() >= 0 and s.max() <= 100
-
-# if not st.session_state.selected.empty:
-#     selected_df = st.session_state.selected.copy()
-#     selected_df[selected_metric] = pd.to_numeric(selected_df[selected_metric], errors="coerce")
-#     values_raw = selected_df[selected_metric]          # 원본 값 (라벨 표시에 사용)
-#     labels_wrapped = [wrap_label(x) for x in st.session_state.labels]
-
-#     # === 보기 모드 ===
-#     view_mode = st.selectbox(
-#         "표시 방식",
-#         ["원본", "상단 확대", "로그 스케일(>0만)"]
-#     )
-
-#     # === 막대 높이로 쓸 값 계산 ===
-#     plot_values = values_raw.fillna(0) 
-#     y_label = selected_metric
-
-#     # === 평균/표준편차: '선택된 막대들' 기준 (변환된 값 기준으로 계산) ===
-#     base_for_stats = values_raw.dropna()  # 원본 기준으로 NaN 제외
-#     if base_for_stats.empty:
-#         mean, std = np.nan, np.nan
-#     else:
-#         mean = float(base_for_stats.mean())
-#         std  = float(base_for_stats.std(ddof=1))
-#     # === 그림 크기/폰트 ===
-#     fig, ax = plt.subplots(figsize=(18, 10), dpi=120)
-#     colors = ["red"] + ["lightgray"] * (len(selected_df) - 1)
-#     bars = ax.bar(labels_wrapped, plot_values, color=colors)
-
-#     # 평균선/±1σ
-#     if np.isfinite(mean) and np.isfinite(std):
-#         ax.axhline(mean, color="gray", linestyle="--", linewidth=2, label=f"평균: {mean:.2f}")
-#         ax.axhspan(mean - std, mean + std, alpha=0.18, color="orange", label=f"주요 분포 범위(±1σ)")
-
-#     # 막대 위 라벨은 항상 '원본 값'으로
-#     def _fmt(v):
-#         if pd.isna(v): return ""
-#         # if "%" in selected_metric:   return f"{v:.1f}%"
-#         # if "천원" in selected_metric: return f"{v:,.0f}"
-#         return f"{v:.1f}"
-#     font_prop_bar_label = fm.FontProperties(fname=font_path2, size=20, weight="bold")
-#     ax.bar_label(bars, labels=[_fmt(v) for v in values_raw], padding=6, fontproperties=font_prop_bar_label)
-
-#     # 축/글씨 크게
-#     font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
-#     ax.tick_params(axis='x', labelsize=30)
-#     ax.tick_params(axis='y', labelsize=22)
-#     ax.set_xticklabels(labels_wrapped, fontproperties = font_prop_x_label)
-
-#     ax.get_yaxis().set_visible(False)
-
-#     legend_font = fm.FontProperties(fname=font_path, size=20)  # Bold 폰트 사용
-#     ax.legend(prop=legend_font)
-
-#     # 그래프 전체 가로 폭을 덮는 박스 추가
-#     ax.add_patch(
-#         patches.Rectangle(
-#             (0, 1.02),   # 좌측 하단 좌표 (x=0, y=1.02 → 그래프 위쪽 살짝 위)
-#             1, 0.15,     # 폭(width=1: 가로 전체), 높이(height=0.08)
-#             transform=ax.transAxes,  # 축 비율 좌표 (0~1)
-#             clip_on=False,
-#             facecolor="red",   # 배경색
-#             edgecolor="red"        # 테두리색
-#         )
-#     )
-
-#     font_prop_title = fm.FontProperties(fname=font_path2, size=34, weight="bold")
-
-#     title_map = {
-#         "신입생 충원율(%)": "신입생 충원율 (2023년 기준, 단위 : %)",
-#         "신입생 경쟁률" : "신입생 경쟁률 (2023년 기준)",
-#         "재학생충원율" : "재학생 충원율 (2023년 기준, 단위 : %)",
-#         "중도탈락률(%)" : "중도탈락률 (2023년 기준, 단위 : %)",
-#         "캡스톤디자인 평균이수학생수" : "캡스톤디자인 평균 이수 학생 수 (2023년 기준, 단위 : 명)",
-#         "졸업생 취업률(%)" : "졸업생 취업률 (2023년 기준, 단위 : %)",
-#         "졸업생 진학률(%)" : "졸업생 진학률 (2023년 기준, 단위 : %)",
-#         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "교원 1인당 연구실적 (2023년 기준)",
-#         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "교원 1인당 연구실적 (2023년 기준)",
-#         "1인당 연구비(천원)": "교원 1인당 연구비 (2023년 기준, 단위 : 천원)"
-#         }
-#     title = title_map.get(selected_metric, f"{selected_metric} (2023년 기준)")
-#     # 박스 위 텍스트
-#     ax.text(
-#         0.01, 1.1,   # 가운데 정렬 (x=0.5), 박스 안쪽 조금 아래
-#         title, 
-#         ha="left", va="center",
-#         fontproperties=font_prop_title, color="white",
-#         transform=ax.transAxes
-#     )
-    
-
-#     # === 모드별 추가 처리 ===
-#     if view_mode == "상단 확대":
-#         if is_percent_metric(selected_metric, values_raw):
-#             lower = st.slider("하한(%)", 0.0, 100.0, 90.0, 0.5)
-#             ax.set_ylim(lower, 100.0)
-#         else:
-#             vmin = float(np.nanmin(values_raw.values)) if len(values_raw) else 0.0
-#             vmax = float(np.nanmax(values_raw.values)) if len(values_raw) else 1.0
-#             lo, hi = st.slider("표시 범위", min_value=vmin, max_value=vmax, value=(vmin, vmax))
-#             ax.set_ylim(lo, hi)
-
-#     if view_mode == "로그 스케일(>0만)":
-#         if (plot_values <= 0).any():
-#             st.warning("로그 스케일은 0 이하 값에 적용할 수 없어요. 다른 모드를 사용해 주세요.")
-#         else:
-#             ax.set_yscale("log")
-    
-    
-#     # 여백/겹침 방지
-#     plt.subplots_adjust(bottom=0.25)
-#     fig.tight_layout()
-#     st.pyplot(fig, use_container_width=True)
-
-#     # 표
-#     st.subheader("선택된 학과 목록")
-#     tmp = selected_df.copy()
-#     tmp["표시명"] = st.session_state.labels
-#     st.dataframe(tmp[["학교", "학과", "표시명", selected_metric]])
-
-# else:
-#     st.info("학교와 학과를 검색하고, 선택 후 [추가] 버튼을 눌러주세요.")
-
-legend_font = fm.FontProperties(fname=font_path, size=25, weight = "bold")
+legend_font = fm.FontProperties(fname=font_path2, size=25, weight = "bold")
 font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
 font_prop_bar_label = fm.FontProperties(fname=font_path2, size=35, weight="bold")
 
@@ -323,7 +191,8 @@ if not st.session_state.selected.empty:
         mean = float(base_for_stats.mean())
         std  = float(base_for_stats.std(ddof=1))
 
-    fig, ax = plt.subplots(figsize=(18, 10), dpi=120)
+    fig, ax = plt.subplots(figsize=(18, 10), dpi=200)
+
 
     # ==========================================
     # 연구실적(논문) → 막대 2개씩
@@ -337,7 +206,7 @@ if not st.session_state.selected.empty:
             "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
         ]
 
-        bar_width = 0.25
+        bar_width = 0.3
         x = np.arange(len(st.session_state.labels))
         colors = ["#dc0000", "#00005d"]
 
@@ -381,7 +250,7 @@ if not st.session_state.selected.empty:
     else:
         plot_values = values_raw.fillna(0)
         colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
-        bars = ax.bar(labels_wrapped, plot_values, color=colors, width = 0.25)
+        bars = ax.bar(labels_wrapped, plot_values, color=colors, width = 0.3)
 
         # 평균선/±1σ
         if np.isfinite(mean) and np.isfinite(std):
@@ -416,7 +285,7 @@ if not st.session_state.selected.empty:
         )
     )
 
-    font_prop_title = fm.FontProperties(fname=font_path2, size=42, weight="bold")
+    font_prop_title = fm.FontProperties(fname=font_path2, size=48, weight="bold")
 
     title_map = {
         "신입생 충원율(%)": "신입생 충원율 (2023년 기준, 단위 : %)",
