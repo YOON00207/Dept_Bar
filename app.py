@@ -323,7 +323,8 @@ if not st.session_state.selected.empty:
             default_upper = 100.0
             default_lower = max(0.0, vmax - 5)  # 마지막 5% 구간만 보여주기
             lower = st.slider("하한(%)", 0.0, 100.0, default_lower, 0.5)
-            ax.set_ylim(lower, default_upper)
+            ax.set_ylim(lower, default_upper*1.05)
+
         else:
             # 일반 지표는 최대값 중심으로 확대
             margin = (vmax - vmin) * 0.1 if vmax > vmin else 1
@@ -331,7 +332,7 @@ if not st.session_state.selected.empty:
                 "하한", min_value=vmin, max_value=vmax,
                 value=max(vmin, vmax - margin), step=0.1
             )
-            ax.set_ylim(lo, vmax)
+            ax.set_ylim(lo, vmax*1.1)
 
 
     elif view_mode == "로그 스케일(>0만)":
