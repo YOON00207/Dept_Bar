@@ -271,6 +271,48 @@ if not st.session_state.selected.empty:
         ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
                         fontproperties=font_prop_x_label)
 
+    # === 모드별 추가 처리 (두 케이스 공통) ===
+# 연구실적(2축)일 때와 일반(1축)일 때 모두에서 쓸 y값 범위 계산
+    if selected_metric in [
+        "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
+        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
+    ]:
+        metrics_to_plot = [
+            "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
+            "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
+        ]
+        all_vals = pd.concat([
+            pd.to_numeric(selected_df[m], errors="coerce")
+            for m in metrics_to_plot
+        ])
+    else:
+        all_vals = pd.to_numeric(selected_df[selected_metric], errors="coerce")
+
+    # 안전한 min/max 계산 (전부 NaN인 경우 대비)
+    if all_vals.notna().any():
+        vmin = float(np.nanmin(all_vals))
+        vmax = float(np.nanmax(all_vals))
+        if vmin == vmax:
+            vmax = vmin + 1.0  # 슬라이더 에러 방지용
+    else:
+        vmin, vmax = 0.0, 1.0
+
+    if view_mode == "상단 확대":
+        if is_percent_metric(selected_metric, all_vals):
+            # % 지표면 상한은 100 고정, 하한만 슬라이더
+            default_lower = min(90.0, max(0.0, vmax - 10))
+            lower = st.slider("하한(%)", 0.0, 100.0, default_lower, 0.5)
+            ax.set_ylim(lower, 100.0)
+        else:
+            lo, hi = st.slider("표시 범위", min_value=vmin, max_value=vmax, value=(vmin, vmax))
+            ax.set_ylim(lo, hi)
+
+    elif view_mode == "로그 스케일(>0만)":
+        # 로그스케일은 0 이하 값이 있으면 불가
+        if (all_vals.dropna() <= 0).any():
+            st.warning("로그 스케일은 0 이하 값에 적용할 수 없어요. 다른 모드를 사용해 주세요.")
+        else:
+            ax.set_yscale("log")
 
     # 공통 설정 (연구실적/일반 둘 다)
     ax.get_yaxis().set_visible(False)
