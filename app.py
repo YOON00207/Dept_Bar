@@ -223,6 +223,13 @@ if not st.session_state.selected.empty:
                     ax.text(bar.get_x() + bar.get_width()/2, h + 0.02,
                             f"{h:.3f}", ha="center", va="bottom",
                             fontproperties = font_prop_bar_label)
+                    
+                # --- y축 상단 여백 확보 (두 지표의 최대값 기준) ---
+                all_max = max(
+                    pd.to_numeric(selected_df[m], errors="coerce").max(skipna=True)
+                    for m in metrics_to_plot
+                )
+                ax.set_ylim(0, all_max * 1.15)
 
                 # --- 평균 & 표준편차 (해당 metric 기준) ---
                 base = vals.dropna()
@@ -251,6 +258,10 @@ if not st.session_state.selected.empty:
         plot_values = values_raw.fillna(0)
         colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
         bars = ax.bar(labels_wrapped, plot_values, color=colors, width = 0.3)
+
+        # --- y축 상단 여백 확보 ---
+        ymax = plot_values.max() if len(plot_values) else 1
+        ax.set_ylim(0, ymax * 1.15)   # 값의 15% 여유 공간 확보
 
         # 평균선/±1σ
         if np.isfinite(mean) and np.isfinite(std):
