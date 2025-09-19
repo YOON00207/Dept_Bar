@@ -1,0 +1,5 @@
+streamlit
+pandas
+matplotlib
+numpy
+openpyxl   # (엑셀 파일 불러올 때 필요)
