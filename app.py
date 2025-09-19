@@ -244,7 +244,7 @@ if not st.session_state.selected.empty:
 
                     # 평균선
                     ax.axhline(mean_i, color=colors[i], linestyle="--", linewidth=2,
-                            label=f"{metric} 평균: {mean_i:.2f}")
+                            label=f"{legend_map[metric]} 평균: {mean_i:.2f}")
 
                     # ±1σ 영역
                     ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i])
