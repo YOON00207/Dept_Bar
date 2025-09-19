@@ -319,13 +319,20 @@ if not st.session_state.selected.empty:
 
     if view_mode == "상단 확대":
         if is_percent_metric(selected_metric, all_vals):
-            # % 지표면 상한은 100 고정, 하한만 슬라이더
-            default_lower = min(90.0, max(0.0, vmax - 10))
+            # 퍼센트 지표는 100 기준, 상단 확대
+            default_upper = 100.0
+            default_lower = max(0.0, vmax - 5)  # 마지막 5% 구간만 보여주기
             lower = st.slider("하한(%)", 0.0, 100.0, default_lower, 0.5)
-            ax.set_ylim(lower, 100.0)
+            ax.set_ylim(lower, default_upper)
         else:
-            lo, hi = st.slider("표시 범위", min_value=vmin, max_value=vmax, value=(vmin, vmax))
-            ax.set_ylim(lo, hi)
+            # 일반 지표는 최대값 중심으로 확대
+            margin = (vmax - vmin) * 0.1 if vmax > vmin else 1
+            lo = st.slider(
+                "하한", min_value=vmin, max_value=vmax,
+                value=max(vmin, vmax - margin), step=0.1
+            )
+            ax.set_ylim(lo, vmax)
+
 
     elif view_mode == "로그 스케일(>0만)":
         # 로그스케일은 0 이하 값이 있으면 불가
