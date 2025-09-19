@@ -289,9 +289,9 @@ if st.session_state.selected.shape[0] > 0:
 # else:
 #     st.info("학교와 학과를 검색하고, 선택 후 [추가] 버튼을 눌러주세요.")
 
-legend_font = fm.FontProperties(fname=font_path, size=23, weight = "bold")
+legend_font = fm.FontProperties(fname=font_path, size=25, weight = "bold")
 font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
-font_prop_bar_label = fm.FontProperties(fname=font_path2, size=25, weight="bold")
+font_prop_bar_label = fm.FontProperties(fname=font_path2, size=35, weight="bold")
 
 def wrap_label(s, width=10):
     s = str(s)
@@ -346,7 +346,7 @@ if not st.session_state.selected.empty:
                 plot_vals = vals.fillna(0)
 
                 # --- 막대 ---
-                bars = ax.bar(x + i*bar_width, plot_vals, width=bar_width, color=colors[i], label=metric)
+                bars = ax.bar(x + i*bar_width, plot_vals, width=bar_width, color=colors[i], label=metric, width=0.5)
 
                 # --- 값 라벨 ---
                 for bar in bars:
@@ -381,7 +381,7 @@ if not st.session_state.selected.empty:
     else:
         plot_values = values_raw.fillna(0)
         colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
-        bars = ax.bar(labels_wrapped, plot_values, color=colors)
+        bars = ax.bar(labels_wrapped, plot_values, color=colors, width = 0.5)
 
         # 평균선/±1σ
         if np.isfinite(mean) and np.isfinite(std):
