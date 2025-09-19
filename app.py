@@ -339,7 +339,7 @@ if not st.session_state.selected.empty:
 
         bar_width = 0.35
         x = np.arange(len(st.session_state.labels))
-        colors = ["red", "navy"]
+        colors = ["#dc0000", "#00005d"]
 
         for i, metric in enumerate(metrics_to_plot):
                 vals = pd.to_numeric(selected_df[metric], errors="coerce")
@@ -368,7 +368,7 @@ if not st.session_state.selected.empty:
                     # ±1σ 영역
                     ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i])
 
-            # --- X축 라벨 ---
+        # --- X축 라벨 ---
         ax.set_xticks(x + bar_width/2)
         # X축 라벨 적용 (줄바꿈 허용)
         ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
@@ -380,12 +380,12 @@ if not st.session_state.selected.empty:
     # ==========================================
     else:
         plot_values = values_raw.fillna(0)
-        colors = ["red"] + ["lightgray"] * (len(selected_df) - 1)
+        colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
         bars = ax.bar(labels_wrapped, plot_values, color=colors)
 
         # 평균선/±1σ
         if np.isfinite(mean) and np.isfinite(std):
-            ax.axhline(mean, color="gray", linestyle="--", linewidth=2, label=f"평균: {mean:.2f}")
+            ax.axhline(mean, color="black", linestyle="--", linewidth=2, label=f"평균: {mean:.2f}")
             ax.axhspan(mean - std, mean + std, alpha=0.18, color="orange", label="주요 분포 범위(±1σ)")
 
         # 값 라벨
@@ -412,7 +412,7 @@ if not st.session_state.selected.empty:
         patches.Rectangle(
             (0, 1.02), 1, 0.15,
             transform=ax.transAxes, clip_on=False,
-            facecolor="red", edgecolor="red"
+            facecolor="#dc0000", edgecolor="#dc0000"
         )
     )
 
@@ -444,11 +444,23 @@ if not st.session_state.selected.empty:
     fig.tight_layout()
     st.pyplot(fig, use_container_width=True)
 
-    # 선택된 학과 표 출력
+    # 선택된 학과 표 출력 + 삭제 버튼
     st.subheader("선택된 학과 목록")
-    tmp = selected_df.copy()
-    tmp["표시명"] = st.session_state.labels
-    st.dataframe(tmp[["학교", "학과", "표시명", selected_metric]])
+
+    if not selected_df.empty:
+        for idx, row in selected_df.iterrows():
+            cols = st.columns([3, 3, 3, 2, 1])  # 열 비율 조정
+            cols[0].write(row["학교"])
+            cols[1].write(row["학과"])
+            cols[2].write(st.session_state.labels[idx] if idx < len(st.session_state.labels) else "")
+            cols[3].write(row[selected_metric])
+
+            # 삭제 버튼
+            if cols[4].button("❌", key=f"del_{idx}"):
+                st.session_state.selected = st.session_state.selected.drop(idx).reset_index(drop=True)
+                st.session_state.labels.pop(idx)
+                st.experimental_rerun()
+
 
 else:
     st.info("학교와 학과를 검색하고, 선택 후 [추가] 버튼을 눌러주세요.")
