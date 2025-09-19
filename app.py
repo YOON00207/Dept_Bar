@@ -206,7 +206,7 @@ if not st.session_state.selected.empty:
             "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
         ]
 
-        bar_width = 0.3
+        bar_width = 0.35
         x = np.arange(len(st.session_state.labels))
         colors = ["#dc0000", "#00005d"]
 
@@ -222,7 +222,13 @@ if not st.session_state.selected.empty:
                     h = bar.get_height()
                     ax.text(bar.get_x() + bar.get_width()/2, h + 0.02,
                             f"{h:.3f}", ha="center", va="bottom",
-                            fontproperties = font_prop_bar_label)
+                            fontproperties = font_prop_bar_label,
+                            bbox=dict(
+                                facecolor="white",   # 배경색
+                                alpha=0.7,           # 투명도 (0=완전투명, 1=불투명)
+                                edgecolor="none",    # 테두리 없음
+                                boxstyle="round,pad=0.2"  # 둥근 모서리 & 패딩
+        ))
 
                 # --- 평균 & 표준편차 (해당 metric 기준) ---
                 base = vals.dropna()
@@ -262,7 +268,13 @@ if not st.session_state.selected.empty:
             if pd.isna(v): return ""
             return f"{v:.1f}"
         ax.bar_label(bars, labels=[_fmt(v) for v in values_raw],
-                     padding=6, fontproperties=font_prop_bar_label)
+                     padding=6, fontproperties=font_prop_bar_label,
+                     bbox=dict(
+                            facecolor="white",   # 배경색
+                            alpha=0.7,           # 투명도 (0=완전투명, 1=불투명)
+                            edgecolor="none",    # 테두리 없음
+                            boxstyle="round,pad=0.2"  # 둥근 모서리 & 패딩
+        ))
 
         # X축 라벨
         ax.tick_params(axis='x', labelsize=30)
