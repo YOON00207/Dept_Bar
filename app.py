@@ -457,9 +457,15 @@ if not st.session_state.selected.empty:
 
             # 삭제 버튼
             if cols[4].button("❌", key=f"del_{idx}"):
+                # 데이터프레임에서 해당 행 삭제
                 st.session_state.selected = st.session_state.selected.drop(idx).reset_index(drop=True)
-                st.session_state.labels.pop(idx)
-                st.experimental_rerun()
+
+                # 라벨 리스트에서 해당 요소 삭제 (안전하게 처리)
+                if idx < len(st.session_state.labels):
+                    st.session_state.labels.pop(idx)
+
+                st.success(f"{row['학교']} - {row['학과']} 삭제 완료!")
+                st.stop()  # 바로 렌더링 멈추고 새로 그림
 
 
 else:
