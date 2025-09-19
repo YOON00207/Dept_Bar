@@ -247,7 +247,7 @@ if not st.session_state.selected.empty:
                             label=f"{legend_map[metric]} 평균: {mean_i:.2f}")
 
                     # ±1σ 영역
-                    ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i])
+                    ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i], label = '주요 분포 범위(±1σ)')
 
         # --- X축 라벨 ---
         ax.set_xticks(x + bar_width/2)
