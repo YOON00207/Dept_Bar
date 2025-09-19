@@ -11,8 +11,8 @@ st.set_page_config(layout="wide")
 # -----------------------------
 # 한글 폰트 설정
 # -----------------------------
-font_path = "KoPubWorld Dotum_Pro Medium.otf"
-font_path2 = "KoPubWorld Dotum Bold.ttf"
+font_path = r"C:\Users\윤서현\Downloads\KoPubWorld Dotum_Pro Medium.otf"
+font_path2 = r"C:\Users\윤서현\Desktop\8페이지\KoPubWorld Dotum Bold.ttf"
 font_name = fm.FontProperties(fname=font_path).get_name()
 plt.rc('font', family=font_name)
 plt.rcParams['axes.unicode_minus'] = False
@@ -23,12 +23,12 @@ plt.rcParams['axes.unicode_minus'] = False
 # ---------------------------------------
 @st.cache_data
 def load_data():
-    file_path = "0918학과경쟁력분석전체대학데이터셋.xlsx"
+    file_path = r"C:\Users\윤서현\Desktop\국립강릉원주대 AI STUDIO\데이터정리\학과경쟁력분석\통합시도\0918학과경쟁력분석전체대학데이터셋.xlsx"
     return pd.read_excel(file_path, engine="openpyxl")
 
 df = load_data()
 
-st.title("학과경쟁력분석")
+st.title("학교·학과별 지표 시각화")
 
 # ---------------------------------------
 # 2. 지표 선택
@@ -68,6 +68,16 @@ if "labels" not in st.session_state:
 # ---------------------------------------
 # 5. 값 수정하기 (체크박스 → 필요할 때만)
 # ---------------------------------------
+# edited_data = row_data.copy()
+# if st.checkbox("값 수정하기") and not row_data.empty:
+#     st.subheader("값 수정")
+#     for idx in row_data.index:
+#         for col in numeric_cols:
+#             old_val = row_data.loc[idx, col]
+#             if pd.isna(old_val):
+#                 old_val = 0.0
+#             new_val = st.number_input(f"{row_data.loc[idx,'학과']} - {col}", value=float(old_val), key=f"edit_{idx}_{col}")
+#             edited_data.at[idx, col] = new_val
 
 edited_data = row_data.copy()
 if st.checkbox("값 수정하기") and not row_data.empty:
@@ -150,12 +160,12 @@ if st.session_state.selected.shape[0] > 0:
     st.subheader("X축 라벨 수정")
     new_labels = []
     for i, label in enumerate(st.session_state.labels):
-        new_label = st.text_area(f"막대 {i+1} 라벨", value=label, key=f"label_{i}", height=50)
+        new_label = st.text_input(f"막대 {i+1} 라벨", value=label, key=f"label_{i}")
         new_labels.append(new_label)
     st.session_state.labels = new_labels
-# ---------------------------------------
-# 9. 그래프 그리기  (줄바꿈/폰트/사이즈 강화)
-# ---------------------------------------
+# # ---------------------------------------
+# # 9. 그래프 그리기  (줄바꿈/폰트/사이즈 강화)
+# # ---------------------------------------
 
 # def wrap_label(s, width=10):
 #     s = str(s)
@@ -205,20 +215,19 @@ if st.session_state.selected.shape[0] > 0:
 #         if pd.isna(v): return ""
 #         # if "%" in selected_metric:   return f"{v:.1f}%"
 #         # if "천원" in selected_metric: return f"{v:,.0f}"
-#         return f"{v:.1f}"
+#         return f"{v:.2f}"
 #     font_prop_bar_label = fm.FontProperties(fname=font_path2, size=20, weight="bold")
 #     ax.bar_label(bars, labels=[_fmt(v) for v in values_raw], padding=6, fontproperties=font_prop_bar_label)
 
 #     # 축/글씨 크게
-#     font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
 #     ax.tick_params(axis='x', labelsize=30)
 #     ax.tick_params(axis='y', labelsize=22)
-#     ax.set_xticklabels(labels_wrapped, fontproperties = font_prop_x_label)
+#     ax.set_xticklabels(labels_wrapped, fontsize=30)
 
 #     ax.get_yaxis().set_visible(False)
 
-#     legend_font = fm.FontProperties(fname=font_path, size=20)  # Bold 폰트 사용
-#     ax.legend(prop=legend_font)
+
+#     ax.legend(fontsize=20)
 
 #     # 그래프 전체 가로 폭을 덮는 박스 추가
 #     ax.add_patch(
@@ -244,7 +253,7 @@ if st.session_state.selected.shape[0] > 0:
 #         "졸업생 진학률(%)" : "졸업생 진학률 (2023년 기준, 단위 : %)",
 #         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "교원 1인당 연구실적 (2023년 기준)",
 #         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "교원 1인당 연구실적 (2023년 기준)",
-#         "1인당 연구비(천원)": "교원 1인당 연구비 (2023년 기준, 단위 : 천원)"
+#         "1인당 연구비(천원)": "교원 1인당 연구비 (2023년 기준, 단위 : 천원)",
 #         }
 #     title = title_map.get(selected_metric, f"{selected_metric} (2023년 기준)")
 #     # 박스 위 텍스트
@@ -255,7 +264,7 @@ if st.session_state.selected.shape[0] > 0:
 #         fontproperties=font_prop_title, color="white",
 #         transform=ax.transAxes
 #     )
-    
+
 
 #     # === 모드별 추가 처리 ===
 #     if view_mode == "상단 확대":
@@ -289,6 +298,9 @@ if st.session_state.selected.shape[0] > 0:
 # else:
 #     st.info("학교와 학과를 검색하고, 선택 후 [추가] 버튼을 눌러주세요.")
 
+# ---------------------------------------
+# 9. 그래프 그리기  (줄바꿈/폰트/사이즈 강화)
+# ---------------------------------------
 legend_font = fm.FontProperties(fname=font_path, size=20)
 font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
 font_prop_bar_label = fm.FontProperties(fname=font_path2, size=20, weight="bold")
