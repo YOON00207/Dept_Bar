@@ -193,7 +193,6 @@ if not st.session_state.selected.empty:
 
     fig, ax = plt.subplots(figsize=(18, 10), dpi=200)
 
-
     # ==========================================
     # 연구실적(논문) → 막대 2개씩
     # ==========================================
@@ -217,17 +216,18 @@ if not st.session_state.selected.empty:
 
         for i, metric in enumerate(metrics_to_plot):
                 vals = pd.to_numeric(selected_df[metric], errors="coerce")
-                plot_vals = vals.fillna(0)
+                plot_vals = vals
 
                 # --- 막대 ---
-                bars = ax.bar(x + i*bar_width, plot_vals, width=bar_width, color=colors[i])
+                bars = ax.bar(x + i*bar_width, plot_vals.fillna(0), width=bar_width, color=colors[i])
 
-                # --- 값 라벨 ---
-                for bar in bars:
+                # --- 값 라벨 (NaN은 빈칸) ---
+                for bar, orig in zip(bars, vals):
                     h = bar.get_height()
+                    label = "" if pd.isna(orig) else f"{orig:.1f}"
                     ax.text(bar.get_x() + bar.get_width()/2, h + 0.02,
-                            f"{h:.3f}", ha="center", va="bottom",
-                            fontproperties = font_prop_bar_label)
+                            label, ha="center", va="bottom",
+                            fontproperties=font_prop_bar_label)
                     
                 # --- y축 상단 여백 확보 (두 지표의 최대값 기준) ---
                 all_max = max(
@@ -260,9 +260,9 @@ if not st.session_state.selected.empty:
     # 일반 지표 → 막대 1개
     # ==========================================
     else:
-        plot_values = values_raw.fillna(0)
+        plot_values = values_raw
         colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
-        bars = ax.bar(labels_wrapped, plot_values, color=colors, width = 0.3)
+        bars = ax.bar(labels_wrapped, plot_values.fillna(0), color=colors, width = 0.3)
 
         # --- y축 상단 여백 확보 ---
         ymax = plot_values.max() if len(plot_values) else 1
