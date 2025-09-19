@@ -76,20 +76,24 @@ if st.checkbox("값 수정하기") and not row_data.empty:
         for col in numeric_cols:
             old_val = row_data.loc[idx, col]
 
-            # UI에는 NaN을 0.0으로만 보여줌 (실제 데이터는 NaN 유지)
-            display_val = 0.0 if pd.isna(old_val) else float(old_val)
+            # NaN이면 빈칸 표시
+            display_val = "" if pd.isna(old_val) else str(old_val)
 
-            new_val = st.number_input(
+            new_val = st.text_input(
                 f"{row_data.loc[idx,'학과']} - {col}",
                 value=display_val,
                 key=f"edit_{idx}_{col}"
             )
 
-            # 사용자가 값을 변경하지 않았고 원래 NaN이면 NaN 유지
-            if pd.isna(old_val) and new_val == 0.0:
+            # 입력값이 비어있으면 NaN 유지
+            if new_val.strip() == "":
                 edited_data.at[idx, col] = np.nan
             else:
-                edited_data.at[idx, col] = new_val
+                try:
+                    edited_data.at[idx, col] = float(new_val)
+                except ValueError:
+                    edited_data.at[idx, col] = np.nan
+
 
 
 # ---------------------------------------
@@ -265,7 +269,7 @@ if not st.session_state.selected.empty:
         if np.isfinite(mean) and np.isfinite(std):
             ax.axhline(mean, color="black", linestyle="--", linewidth=2, label=f"평균: {mean:.2f}")
             ax.axhspan(mean - std, mean + std, alpha=0.18, color="#ffcccc", label="주요 분포 범위(±1σ)")
-            
+
         bars = ax.bar(labels_wrapped, plot_values.fillna(0), color=colors, width = 0.3)
 
         # --- y축 상단 여백 확보 ---
