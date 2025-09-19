@@ -289,9 +289,9 @@ if st.session_state.selected.shape[0] > 0:
 # else:
 #     st.info("학교와 학과를 검색하고, 선택 후 [추가] 버튼을 눌러주세요.")
 
-legend_font = fm.FontProperties(fname=font_path, size=20)
+legend_font = fm.FontProperties(fname=font_path, size=23, weight = "bold")
 font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
-font_prop_bar_label = fm.FontProperties(fname=font_path2, size=20, weight="bold")
+font_prop_bar_label = fm.FontProperties(fname=font_path2, size=25, weight="bold")
 
 def wrap_label(s, width=10):
     s = str(s)
@@ -353,7 +353,7 @@ if not st.session_state.selected.empty:
                     h = bar.get_height()
                     ax.text(bar.get_x() + bar.get_width()/2, h + 0.02,
                             f"{h:.3f}", ha="center", va="bottom",
-                            fontsize=12, fontweight="bold")
+                            fontproperties = font_prop_bar_label)
 
                 # --- 평균 & 표준편차 (해당 metric 기준) ---
                 base = vals.dropna()
@@ -416,7 +416,7 @@ if not st.session_state.selected.empty:
         )
     )
 
-    font_prop_title = fm.FontProperties(fname=font_path2, size=34, weight="bold")
+    font_prop_title = fm.FontProperties(fname=font_path2, size=36, weight="bold")
 
     title_map = {
         "신입생 충원율(%)": "신입생 충원율 (2023년 기준, 단위 : %)",
