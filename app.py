@@ -205,6 +205,11 @@ if not st.session_state.selected.empty:
             "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
             "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
         ]
+        legend_map = {
+        "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "연구재단 등재지(후보포함)",
+        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "SCI/SCOPUS 학술지"
+    }
+
 
         bar_width = 0.35
         x = np.arange(len(st.session_state.labels))
@@ -215,7 +220,7 @@ if not st.session_state.selected.empty:
                 plot_vals = vals.fillna(0)
 
                 # --- 막대 ---
-                bars = ax.bar(x + i*bar_width, plot_vals, width=bar_width, color=colors[i], label=metric)
+                bars = ax.bar(x + i*bar_width, plot_vals, width=bar_width, color=colors[i], label=legend_map[metric])
 
                 # --- 값 라벨 ---
                 for bar in bars:
@@ -283,7 +288,7 @@ if not st.session_state.selected.empty:
                         fontproperties=font_prop_x_label)
 
     # === 모드별 추가 처리 (두 케이스 공통) ===
-# 연구실적(2축)일 때와 일반(1축)일 때 모두에서 쓸 y값 범위 계산
+    # 연구실적(2축)일 때와 일반(1축)일 때 모두에서 쓸 y값 범위 계산
     if selected_metric in [
         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
