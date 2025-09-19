@@ -68,16 +68,6 @@ if "labels" not in st.session_state:
 # ---------------------------------------
 # 5. 값 수정하기 (체크박스 → 필요할 때만)
 # ---------------------------------------
-# edited_data = row_data.copy()
-# if st.checkbox("값 수정하기") and not row_data.empty:
-#     st.subheader("값 수정")
-#     for idx in row_data.index:
-#         for col in numeric_cols:
-#             old_val = row_data.loc[idx, col]
-#             if pd.isna(old_val):
-#                 old_val = 0.0
-#             new_val = st.number_input(f"{row_data.loc[idx,'학과']} - {col}", value=float(old_val), key=f"edit_{idx}_{col}")
-#             edited_data.at[idx, col] = new_val
 
 edited_data = row_data.copy()
 if st.checkbox("값 수정하기") and not row_data.empty:
@@ -220,14 +210,15 @@ if not st.session_state.selected.empty:
     ax.bar_label(bars, labels=[_fmt(v) for v in values_raw], padding=6, fontproperties=font_prop_bar_label)
 
     # 축/글씨 크게
+    font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
     ax.tick_params(axis='x', labelsize=30)
     ax.tick_params(axis='y', labelsize=22)
-    ax.set_xticklabels(labels_wrapped, fontsize=30)
+    ax.set_xticklabels(labels_wrapped, fontproperites = font_prop_x_label)
 
     ax.get_yaxis().set_visible(False)
 
-
-    ax.legend(fontsize=20)
+    legend_font = fm.FontProperties(fname=font_path, size=20)  # Bold 폰트 사용
+    ax.legend(prop=legend_font)
 
     # 그래프 전체 가로 폭을 덮는 박스 추가
     ax.add_patch(
