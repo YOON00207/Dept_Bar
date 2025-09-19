@@ -213,7 +213,7 @@ if not st.session_state.selected.empty:
     font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
     ax.tick_params(axis='x', labelsize=30)
     ax.tick_params(axis='y', labelsize=22)
-    ax.set_xticklabels(labels_wrapped, fontproperites = font_prop_x_label)
+    ax.set_xticklabels(labels_wrapped, fontproperties = font_prop_x_label)
 
     ax.get_yaxis().set_visible(False)
 
