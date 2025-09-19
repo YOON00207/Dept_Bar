@@ -220,7 +220,7 @@ if not st.session_state.selected.empty:
                 plot_vals = vals.fillna(0)
 
                 # --- 막대 ---
-                bars = ax.bar(x + i*bar_width, plot_vals, width=bar_width, color=colors[i], label=legend_map[metric])
+                bars = ax.bar(x + i*bar_width, plot_vals, width=bar_width, color=colors[i])
 
                 # --- 값 라벨 ---
                 for bar in bars:
