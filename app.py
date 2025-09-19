@@ -337,7 +337,7 @@ if not st.session_state.selected.empty:
             "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
         ]
 
-        bar_width = 0.35
+        bar_width = 0.2
         x = np.arange(len(st.session_state.labels))
         colors = ["#dc0000", "#00005d"]
 
@@ -346,7 +346,7 @@ if not st.session_state.selected.empty:
                 plot_vals = vals.fillna(0)
 
                 # --- 막대 ---
-                bars = ax.bar(x + i*bar_width, plot_vals, width=bar_width, color=colors[i], label=metric, width=0.5)
+                bars = ax.bar(x + i*bar_width, plot_vals, width=bar_width, color=colors[i], label=metric)
 
                 # --- 값 라벨 ---
                 for bar in bars:
@@ -381,7 +381,7 @@ if not st.session_state.selected.empty:
     else:
         plot_values = values_raw.fillna(0)
         colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
-        bars = ax.bar(labels_wrapped, plot_values, color=colors, width = 0.5)
+        bars = ax.bar(labels_wrapped, plot_values, color=colors, width = 0.2)
 
         # 평균선/±1σ
         if np.isfinite(mean) and np.isfinite(std):
