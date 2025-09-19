@@ -337,7 +337,7 @@ if not st.session_state.selected.empty:
             "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
         ]
 
-        bar_width = 0.2
+        bar_width = 0.25
         x = np.arange(len(st.session_state.labels))
         colors = ["#dc0000", "#00005d"]
 
@@ -381,7 +381,7 @@ if not st.session_state.selected.empty:
     else:
         plot_values = values_raw.fillna(0)
         colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
-        bars = ax.bar(labels_wrapped, plot_values, color=colors, width = 0.2)
+        bars = ax.bar(labels_wrapped, plot_values, color=colors, width = 0.25)
 
         # 평균선/±1σ
         if np.isfinite(mean) and np.isfinite(std):
@@ -416,7 +416,7 @@ if not st.session_state.selected.empty:
         )
     )
 
-    font_prop_title = fm.FontProperties(fname=font_path2, size=36, weight="bold")
+    font_prop_title = fm.FontProperties(fname=font_path2, size=42, weight="bold")
 
     title_map = {
         "신입생 충원율(%)": "신입생 충원율 (2023년 기준, 단위 : %)",
