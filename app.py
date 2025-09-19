@@ -222,13 +222,7 @@ if not st.session_state.selected.empty:
                     h = bar.get_height()
                     ax.text(bar.get_x() + bar.get_width()/2, h + 0.02,
                             f"{h:.3f}", ha="center", va="bottom",
-                            fontproperties = font_prop_bar_label,
-                            bbox=dict(
-                                facecolor="white",   # 배경색
-                                alpha=0.7,           # 투명도 (0=완전투명, 1=불투명)
-                                edgecolor="none",    # 테두리 없음
-                                boxstyle="round,pad=0.2"  # 둥근 모서리 & 패딩
-        ))
+                            fontproperties = font_prop_bar_label)
 
                 # --- 평균 & 표준편차 (해당 metric 기준) ---
                 base = vals.dropna()
@@ -261,20 +255,14 @@ if not st.session_state.selected.empty:
         # 평균선/±1σ
         if np.isfinite(mean) and np.isfinite(std):
             ax.axhline(mean, color="black", linestyle="--", linewidth=2, label=f"평균: {mean:.2f}")
-            ax.axhspan(mean - std, mean + std, alpha=0.18, color="orange", label="주요 분포 범위(±1σ)")
+            ax.axhspan(mean - std, mean + std, alpha=0.18, color="#ffcccc", label="주요 분포 범위(±1σ)")
 
         # 값 라벨
         def _fmt(v):
             if pd.isna(v): return ""
             return f"{v:.1f}"
         ax.bar_label(bars, labels=[_fmt(v) for v in values_raw],
-                     padding=6, fontproperties=font_prop_bar_label,
-                     bbox=dict(
-                            facecolor="white",   # 배경색
-                            alpha=0.7,           # 투명도 (0=완전투명, 1=불투명)
-                            edgecolor="none",    # 테두리 없음
-                            boxstyle="round,pad=0.2"  # 둥근 모서리 & 패딩
-        ))
+                     padding=6, fontproperties=font_prop_bar_label)
 
         # X축 라벨
         ax.tick_params(axis='x', labelsize=30)
