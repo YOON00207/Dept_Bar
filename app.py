@@ -370,7 +370,10 @@ if not st.session_state.selected.empty:
 
             # --- X축 라벨 ---
         ax.set_xticks(x + bar_width/2)
-        ax.set_xticklabels(st.session_state.labels, fontproperties=font_prop_x_label)
+        # X축 라벨 적용 (줄바꿈 허용)
+        ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
+                        fontproperties=font_prop_x_label)
+
 
     # ==========================================
     # 일반 지표 → 막대 1개
@@ -395,7 +398,10 @@ if not st.session_state.selected.empty:
         # X축 라벨
         ax.tick_params(axis='x', labelsize=30)
         ax.tick_params(axis='y', labelsize=22)
-        ax.set_xticklabels(labels_wrapped, fontproperties=font_prop_x_label)
+        # X축 라벨 적용 (줄바꿈 허용)
+        ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
+                        fontproperties=font_prop_x_label)
+
 
     # 공통 설정 (연구실적/일반 둘 다)
     ax.get_yaxis().set_visible(False)
