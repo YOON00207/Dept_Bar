@@ -66,7 +66,7 @@ else:
 #     row_data = pd.DataFrame()
 
     # 검색 결과 보여주기
-    if not search_results.empty:
+if not search_results.empty:
         st.subheader("검색 결과")
 
         # '추가' 체크박스 컬럼 붙이기
