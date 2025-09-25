@@ -45,20 +45,43 @@ def shorten_school(name: str) -> str:
     return name
 
 row_data = pd.DataFrame()
-schools = ["전체"] + df["학교"].dropna().unique().tolist()
-school = st.selectbox("학교 선택", schools)
+# schools = ["전체"] + df["학교"].dropna().unique().tolist()
+# school = st.multiselect("학교 선택", schools)
+# search_keyword = st.text_input("학과 검색어 입력")
+
+# if school == "전체":
+#     if search_keyword:
+#         search_results = df[df["학과"].str.contains(search_keyword, na=False)]
+#     else:
+#         search_results = df.copy()
+# else:
+#     if search_keyword:
+#         search_results = df[(df["학교"] == school) & (df["학과"].str.contains(search_keyword, na=False))]
+#     else:
+#         search_results = df[(df["학교"] == school)]
+
+# -------------------------
+# 학교 선택 (여러 개 가능)
+# -------------------------
+schools_all = df["학교"].dropna().unique().tolist()
+selected_schools = st.multiselect("학교 선택 (여러 개 가능)", ["전체"] + schools_all, default=["전체"])
+
+# -------------------------
+# 학과 검색 (부분 일치)
+# -------------------------
 search_keyword = st.text_input("학과 검색어 입력")
 
-if school == "전체":
-    if search_keyword:
-        search_results = df[df["학과"].str.contains(search_keyword, na=False)]
-    else:
-        search_results = df.copy()
+# -------------------------
+# 조건 결합
+# -------------------------
+if "전체" in selected_schools or not selected_schools:
+    search_results = df.copy()
 else:
-    if search_keyword:
-        search_results = df[(df["학교"] == school) & (df["학과"].str.contains(search_keyword, na=False))]
-    else:
-        search_results = df[(df["학교"] == school)]
+    search_results = df[df["학교"].isin(selected_schools)]
+
+if search_keyword:
+    search_results = search_results[search_results["학과"].str.contains(search_keyword, na=False)]
+
 
 # # 검색 결과 보여주기
 # if not search_results.empty:
