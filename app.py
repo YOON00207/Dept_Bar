@@ -38,6 +38,12 @@ selected_metric = st.selectbox("지표 선택", numeric_cols)
 # ---------------------------------------
 # 3. 학교 + 학과 검색 (str.contains)
 # ---------------------------------------
+# 학교명 변환 함수
+def shorten_school(name: str) -> str:
+    if isinstance(name, str):
+        return name.replace("대학교", "대")
+    return name
+
 row_data = pd.DataFrame()
 schools = ["전체"] + df["학교"].dropna().unique().tolist()
 school = st.selectbox("학교 선택", schools)
@@ -71,7 +77,11 @@ if not search_results.empty:
 
         # '추가' 체크박스 컬럼 붙이기
         search_results_display = search_results.copy()
-        search_results_display["추가"] = False  
+        search_results_display["추가"] = False
+
+        #추가 버튼 맨 앞으로 빼기
+        cols = ["추가"] + [c for c in search_results_display.columns if c != "추가"]
+        search_results_display = search_results_display[cols]
 
         # data_editor로 보여주기 (행 클릭해서 체크 가능)
         edited_results = st.data_editor(
@@ -81,22 +91,22 @@ if not search_results.empty:
             num_rows="dynamic"
         )
 
-        # 체크된 학과만 필터링
-        row_data = edited_results[edited_results["추가"] == True]
+        # # 체크된 학과만 필터링
+        # row_data = edited_results[edited_results["추가"] == True]
 
-        if not row_data.empty:
-            if st.button("선택 학과 추가"):
-                st.session_state.selected = pd.concat(
-                    [st.session_state.selected, row_data.drop(columns=["추가"])],
-                    ignore_index=True
-                )
-                # st.session_state.labels.extend(row_data["학교"].tolist())
-                combined_labels = row_data.apply(
-                    lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
-                )
-                st.session_state.labels.extend(combined_labels.tolist())
+        # if not row_data.empty:
+        #     if st.button("선택 학과 추가"):
+        #         st.session_state.selected = pd.concat(
+        #             [st.session_state.selected, row_data.drop(columns=["추가"])],
+        #             ignore_index=True
+        #         )
+        #         # st.session_state.labels.extend(row_data["학교"].tolist())
+        #         combined_labels = row_data.apply(
+        #             lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
+        #         )
+        #         st.session_state.labels.extend(combined_labels.tolist())
 
-                st.success(f"{len(row_data)}개 학과 추가 완료!")
+        #         st.success(f"{len(row_data)}개 학과 추가 완료!")
 
 # ---------------------------------------
 # 4. 세션 상태 초기화
@@ -140,11 +150,6 @@ if st.checkbox("값 수정하기") and not row_data.empty:
 # ---------------------------------------
 # 6. 선택 확정 (추가 버튼)
 # ---------------------------------------
-# 학교명 변환 함수
-def shorten_school(name: str) -> str:
-    if isinstance(name, str):
-        return name.replace("대학교", "대")
-    return name
 
 
 if st.button("추가"):
