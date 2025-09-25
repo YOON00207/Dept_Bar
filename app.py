@@ -89,7 +89,12 @@ else:
                     [st.session_state.selected, row_data.drop(columns=["추가"])],
                     ignore_index=True
                 )
-                st.session_state.labels.extend(row_data["학교"].tolist())
+                # st.session_state.labels.extend(row_data["학교"].tolist())
+                combined_labels = row_data.apply(
+                    lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
+                )
+                st.session_state.labels.extend(combined_labels.tolist())
+
                 st.success(f"{len(row_data)}개 학과 추가 완료!")
 
 # ---------------------------------------
