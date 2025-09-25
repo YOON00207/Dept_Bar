@@ -38,6 +38,7 @@ selected_metric = st.selectbox("지표 선택", numeric_cols)
 # ---------------------------------------
 # 3. 학교 + 학과 검색 (str.contains)
 # ---------------------------------------
+row_data = pd.DataFrame()
 schools = ["전체"] + df["학교"].dropna().unique().tolist()
 school = st.selectbox("학교 선택", schools)
 search_keyword = st.text_input("학과 검색어 입력")
@@ -63,7 +64,7 @@ else:
 # else:
 #     st.info("검색 결과가 없습니다.")
 #     row_data = pd.DataFrame()
-    row_data = pd.DataFrame()
+
     # 검색 결과 보여주기
     if not search_results.empty:
         st.subheader("검색 결과")
