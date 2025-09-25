@@ -63,7 +63,7 @@ else:
 # else:
 #     st.info("검색 결과가 없습니다.")
 #     row_data = pd.DataFrame()
-
+    row_data = pd.DataFrame()
     # 검색 결과 보여주기
     if not search_results.empty:
         st.subheader("검색 결과")
