@@ -168,7 +168,7 @@ if st.session_state.selected.shape[0] > 0:
 # 9. 그래프 그리기  (줄바꿈/폰트/사이즈 강화)
 # ---------------------------------------
 
-legend_font = fm.FontProperties(fname=font_path2, size=35, weight = "bold")
+legend_font = fm.FontProperties(fname=font_path2, size=38, weight = "bold")
 font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
 font_prop_bar_label = fm.FontProperties(fname=font_path2, size=35, weight="bold")
 
@@ -376,7 +376,15 @@ if not st.session_state.selected.empty:
         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "교원 1인당 연구실적 (2023년 기준)",
         "1인당 연구비(천원)": "교원 1인당 연구비 (2023년 기준, 단위 : 천원)"
     }
-    title = title_map.get(selected_metric, f"{selected_metric} (2023년 기준)")
+    # title = title_map.get(selected_metric, f"{selected_metric} (2023년 기준)")
+    # title_override 변수를 사용자가 선택할 수 있도록 설정 (예: Streamlit selectbox 등과 연동 가능)
+    title_override = None   # None이면 기본값 사용, 문자열이 들어오면 해당 문자열 사용
+
+    # 최종 타이틀 결정
+    if title_override and len(title_override.strip()) > 0:
+        title = title_override
+    else:
+        title = title_map.get(selected_metric, f"{selected_metric} (2023년 기준)")
 
     ax.text(
         0.01, 1.1, title,
