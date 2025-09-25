@@ -378,7 +378,9 @@ if not st.session_state.selected.empty:
     }
     # title = title_map.get(selected_metric, f"{selected_metric} (2023년 기준)")
     # title_override 변수를 사용자가 선택할 수 있도록 설정 (예: Streamlit selectbox 등과 연동 가능)
-    title_override = None   # None이면 기본값 사용, 문자열이 들어오면 해당 문자열 사용
+    # 제목 수정 칸 (기본값은 빈칸, placeholder로 안내 문구)
+    title_override = st.text_input("차트 제목 수정", value="", placeholder="여기에 제목을 입력하세요")
+
 
     # 최종 타이틀 결정
     if title_override and len(title_override.strip()) > 0:
