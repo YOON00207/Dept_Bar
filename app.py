@@ -168,7 +168,7 @@ if st.session_state.selected.shape[0] > 0:
 # 9. 그래프 그리기  (줄바꿈/폰트/사이즈 강화)
 # ---------------------------------------
 
-legend_font = fm.FontProperties(fname=font_path2, size=25, weight = "bold")
+legend_font = fm.FontProperties(fname=font_path2, size=35, weight = "bold")
 font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
 font_prop_bar_label = fm.FontProperties(fname=font_path2, size=35, weight="bold")
 
