@@ -53,16 +53,44 @@ else:
     else:
         search_results = df[(df["학교"] == school)]
 
-# 검색 결과 보여주기
-if not search_results.empty:
-    st.subheader("검색 결과")
-    st.dataframe(search_results)
+# # 검색 결과 보여주기
+# if not search_results.empty:
+#     st.subheader("검색 결과")
+#     st.dataframe(search_results)
 
-    majors = st.multiselect("추가할 학과 선택", options=search_results["학과"].dropna().unique())
-    row_data = search_results[search_results["학과"].isin(majors)]
-else:
-    st.info("검색 결과가 없습니다.")
-    row_data = pd.DataFrame()
+#     majors = st.multiselect("추가할 학과 선택", options=search_results["학과"].dropna().unique())
+#     row_data = search_results[search_results["학과"].isin(majors)]
+# else:
+#     st.info("검색 결과가 없습니다.")
+#     row_data = pd.DataFrame()
+
+    # 검색 결과 보여주기
+    if not search_results.empty:
+        st.subheader("검색 결과")
+
+        # '추가' 체크박스 컬럼 붙이기
+        search_results_display = search_results.copy()
+        search_results_display["추가"] = False  
+
+        # data_editor로 보여주기 (행 클릭해서 체크 가능)
+        edited_results = st.data_editor(
+            search_results_display,
+            hide_index=True,
+            use_container_width=True,
+            num_rows="dynamic"
+        )
+
+        # 체크된 학과만 필터링
+        row_data = edited_results[edited_results["추가"] == True]
+
+        if not row_data.empty:
+            if st.button("선택 학과 추가"):
+                st.session_state.selected = pd.concat(
+                    [st.session_state.selected, row_data.drop(columns=["추가"])],
+                    ignore_index=True
+                )
+                st.session_state.labels.extend(row_data["학교"].tolist())
+                st.success(f"{len(row_data)}개 학과 추가 완료!")
 
 # ---------------------------------------
 # 4. 세션 상태 초기화
@@ -106,6 +134,13 @@ if st.checkbox("값 수정하기") and not row_data.empty:
 # ---------------------------------------
 # 6. 선택 확정 (추가 버튼)
 # ---------------------------------------
+# 학교명 변환 함수
+def shorten_school(name: str) -> str:
+    if isinstance(name, str):
+        return name.replace("대학교", "대")
+    return name
+
+
 if st.button("추가"):
     if not row_data.empty:
         # 수정된 경우 반영해서 추가
@@ -114,14 +149,26 @@ if st.button("추가"):
                 [st.session_state.selected, edited_data],
                 ignore_index=True
             )
-            st.session_state.labels.extend(edited_data["학교"].tolist())
+            # st.session_state.labels.extend(edited_data["학교"].tolist())
+            # 학교 + 학과를 줄바꿈(\n)으로 결합
+            combined_labels = row_data.apply(
+                lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
+            )
+
+            st.session_state.labels.extend(combined_labels.tolist())
             st.success(f"{len(edited_data)}개 학과 (수정된 값) 추가 완료!")
         else:
             st.session_state.selected = pd.concat(
                 [st.session_state.selected, row_data],
                 ignore_index=True
             )
-            st.session_state.labels.extend(row_data["학교"].tolist())
+            # st.session_state.labels.extend(row_data["학교"].tolist())
+            # 학교 + 학과를 줄바꿈(\n)으로 결합
+            combined_labels = row_data.apply(
+                lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
+            )
+
+            st.session_state.labels.extend(combined_labels.tolist())
             st.success(f"{len(row_data)}개 학과 추가 완료!")
 
 # ---------------------------------------
@@ -376,7 +423,6 @@ if not st.session_state.selected.empty:
         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "교원 1인당 연구실적 (2023년 기준)",
         "1인당 연구비(천원)": "교원 1인당 연구비 (2023년 기준, 단위 : 천원)"
     }
-    # title = title_map.get(selected_metric, f"{selected_metric} (2023년 기준)")
     # title_override 변수를 사용자가 선택할 수 있도록 설정 (예: Streamlit selectbox 등과 연동 가능)
     # 제목 수정 칸 (기본값은 빈칸, placeholder로 안내 문구)
     title_override = st.text_input("차트 제목 수정", value="", placeholder="여기에 제목을 입력하세요")
