@@ -112,7 +112,7 @@ if not search_results.empty:
             st.success(f"{len(checked)}개 학과 불러오기 완료")
 
         if not st.session_state.buffer.empty:
-            st.subheader("불러온 학과 목록 (순서 변경 및 수정 가능)")
+            st.subheader("불러온 학과 목록 (행 추가 및 수정 가능)")
 
             buffer_edit = st.data_editor(
                 st.session_state.buffer,
