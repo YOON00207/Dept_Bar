@@ -108,7 +108,7 @@ if not search_results.empty:
 
         if st.button('선택한 학과 불러오기'):
             if "buffer" not in st.session_state:
-                st.session_state.buffer = pd.concat(columns = df.columns)
+                st.session_state.buffer = pd.DatafFrame(columns = df.columns)
             st.session_state.buffer = pd.concat([st.session_state.buffer, checked], ignore_index=True)
             st.success(f"{len(checked)}개 학과 불러오기 완료! 아래에서 [추가] 버튼을 눌러주세요.")
 
