@@ -28,6 +28,9 @@ def load_data():
 
 df = load_data()
 
+if "buffer" not in st.session_state: 
+    st.session_state.buffer = pd.DataFrame(columns=df.columns)
+
 st.title("학과경쟁력분석")
 
 # ---------------------------------------
@@ -132,8 +135,7 @@ if "selected" not in st.session_state:
     st.session_state.selected = pd.DataFrame(columns=df.columns)
 if "labels" not in st.session_state:
     st.session_state.labels = []
-if "buffer" not in st.session_state: 
-    st.session_state.buffer = pd.DataFrame(columns=df.columns)
+
 
 # ---------------------------------------
 # 5. 값 수정하기 (체크박스 → 필요할 때만)
