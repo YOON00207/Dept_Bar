@@ -110,7 +110,20 @@ if not search_results.empty:
             if "buffer" not in st.session_state:
                 st.session_state.buffer = pd.DataFrame(columns = df.columns)
             st.session_state.buffer = pd.concat([st.session_state.buffer, checked], ignore_index=True)
-            st.success(f"{len(checked)}개 학과 불러오기 완료! 아래에서 [추가] 버튼을 눌러주세요.")
+            st.success(f"{len(checked)}개 학과 불러오기 완료")
+
+        if not st.session_state.buffer.empty:
+            st.subheader("불러온 학과 목록 (순서 변경 및 수정 가능)")
+
+            buffer_edit = st.data_editor(
+                st.session_state.buffer,
+                num_rows = 'dynamic',
+                hide_index=True,
+                use_container_width=True,
+                key = "buffer_editor"
+            )
+    
+            
 
 # ---------------------------------------
 # 4. 세션 상태 초기화
@@ -154,7 +167,15 @@ if st.checkbox("값 수정하기") and not row_data.empty:
 # ---------------------------------------
 # 6. 선택 확정 (추가 버튼)
 # ---------------------------------------
+def make_label(row):
+    school = shorten_school(row["학교"])
+    major = row["학과"]
 
+    # 특정 키워드가 있으면 학과는 제외
+    if any(keyword in school for keyword in ["본교", "거점국립대", "강원권 사립대"]):
+        return school
+    else:
+        return f"{school}\n{major}"
 
 if st.button("추가"):
     if not row_data.empty:
@@ -166,9 +187,10 @@ if st.button("추가"):
             )
             # st.session_state.labels.extend(edited_data["학교"].tolist())
             # 학교 + 학과를 줄바꿈(\n)으로 결합
-            combined_labels = row_data.apply(
-                lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
-            )
+
+
+            combined_labels = row_data.apply(make_label, axis=1)
+
 
             st.session_state.labels.extend(combined_labels.tolist())
             st.success(f"{len(edited_data)}개 학과 (수정된 값) 추가 완료!")
