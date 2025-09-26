@@ -125,7 +125,11 @@ if not search_results.empty:
                 use_container_width=True,
                 key = "buffer_editor"
             )
-    
+            if st.button('수정 반영하기'):
+                st.session_state.buffer = buffer_edit.copy()
+                st.session_state.selected = buffer_edit.copy()
+                st.success("수정 사항이 반영되었습니다")
+
             
 
 # ---------------------------------------
