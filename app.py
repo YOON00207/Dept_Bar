@@ -58,20 +58,6 @@ def make_label(row):
         return f"{school}\n{major}"
 
 row_data = pd.DataFrame()
-# schools = ["전체"] + df["학교"].dropna().unique().tolist()
-# school = st.multiselect("학교 선택", schools)
-# search_keyword = st.text_input("학과 검색어 입력")
-
-# if school == "전체":
-#     if search_keyword:
-#         search_results = df[df["학과"].str.contains(search_keyword, na=False)]
-#     else:
-#         search_results = df.copy()
-# else:
-#     if search_keyword:
-#         search_results = df[(df["학교"] == school) & (df["학과"].str.contains(search_keyword, na=False))]
-#     else:
-#         search_results = df[(df["학교"] == school)]
 
 # -------------------------
 # 학교 선택 (여러 개 가능)
@@ -157,6 +143,7 @@ if "labels" not in st.session_state:
 # ---------------------------------------
 # 6. 선택 확정 (추가 버튼)
 # ---------------------------------------
+if st.button('추가'):
     if checked.empty:
         st.warning("추가할 학과를 먼저 선택하세요")
     else:
