@@ -82,19 +82,7 @@ else:
 if search_keyword:
     search_results = search_results[search_results["학과"].str.contains(search_keyword, na=False)]
 
-
-# # 검색 결과 보여주기
-# if not search_results.empty:
-#     st.subheader("검색 결과")
-#     st.dataframe(search_results)
-
-#     majors = st.multiselect("추가할 학과 선택", options=search_results["학과"].dropna().unique())
-#     row_data = search_results[search_results["학과"].isin(majors)]
-# else:
-#     st.info("검색 결과가 없습니다.")
-#     row_data = pd.DataFrame()
-
-    # 검색 결과 보여주기
+# 검색 결과 보여주기
 if not search_results.empty:
         st.subheader("검색 결과")
 
@@ -116,7 +104,13 @@ if not search_results.empty:
         )
 
         # 체크된 학과만 필터링
-        row_data = edited_results[edited_results["추가"] == True].copy()
+        checked = edited_results[edited_results["추가"] == True].copy()
+
+        if st.button('선택한 학과 불러오기'):
+            if "buffer" not in st.session_state:
+                st.session_state.buffer = pd.concat(columns = df.columns)
+            st.session_state.buffer = pd.concat([st.session_state.buffer, checked], ignore_index=True)
+            st.success(f"{len(checked)}개 학과 불러오기 완료! 아래에서 [추가] 버튼을 눌러주세요.")
 
 # ---------------------------------------
 # 4. 세션 상태 초기화
