@@ -111,25 +111,12 @@ if not search_results.empty:
             search_results_display,
             hide_index=True,
             use_container_width=True,
-            num_rows="dynamic"
+            num_rows="dynamic",
+            key = "search_editor"
         )
 
-        # # 체크된 학과만 필터링
-        # row_data = edited_results[edited_results["추가"] == True]
-
-        # if not row_data.empty:
-        #     if st.button("선택 학과 추가"):
-        #         st.session_state.selected = pd.concat(
-        #             [st.session_state.selected, row_data.drop(columns=["추가"])],
-        #             ignore_index=True
-        #         )
-        #         # st.session_state.labels.extend(row_data["학교"].tolist())
-        #         combined_labels = row_data.apply(
-        #             lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
-        #         )
-        #         st.session_state.labels.extend(combined_labels.tolist())
-
-        #         st.success(f"{len(row_data)}개 학과 추가 완료!")
+        # 체크된 학과만 필터링
+        row_data = edited_results[edited_results["추가"] == True].copy()
 
 # ---------------------------------------
 # 4. 세션 상태 초기화
