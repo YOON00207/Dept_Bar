@@ -141,31 +141,30 @@ if "labels" not in st.session_state:
 # 5. 값 수정하기 (체크박스 → 필요할 때만)
 # ---------------------------------------
 
-edited_data = row_data.copy()
-if st.checkbox("값 수정하기") and not row_data.empty:
-    st.subheader("값 수정")
-    for idx in row_data.index:
-        for col in numeric_cols:
-            old_val = row_data.loc[idx, col]
+# edited_data = checked.copy()
+# if st.checkbox("값 수정하기") and not row_data.empty:
+#     st.subheader("값 수정")
+#     for idx in row_data.index:
+#         for col in numeric_cols:
+#             old_val = row_data.loc[idx, col]
 
-            # NaN이면 빈칸 표시
-            display_val = "" if pd.isna(old_val) else str(old_val)
+#             # NaN이면 빈칸 표시
+#             display_val = "" if pd.isna(old_val) else str(old_val)
 
-            new_val = st.text_input(
-                f"{row_data.loc[idx,'학과']} - {col}",
-                value=display_val,
-                key=f"edit_{idx}_{col}"
-            )
+#             new_val = st.text_input(
+#                 f"{row_data.loc[idx,'학과']} - {col}",
+#                 value=display_val,
+#                 key=f"edit_{idx}_{col}"
+#             )
 
-            # 입력값이 비어있으면 NaN 유지
-            if new_val.strip() == "":
-                edited_data.at[idx, col] = np.nan
-            else:
-                try:
-                    edited_data.at[idx, col] = float(new_val)
-                except ValueError:
-                    edited_data.at[idx, col] = np.nan
-
+#             # 입력값이 비어있으면 NaN 유지
+#             if new_val.strip() == "":
+#                 edited_data.at[idx, col] = np.nan
+#             else:
+#                 try:
+#                     edited_data.at[idx, col] = float(new_val)
+#                 except ValueError:
+#                     edited_data.at[idx, col] = np.nan
 
 
 # ---------------------------------------
@@ -208,44 +207,55 @@ def make_label(row):
 
 #             st.session_state.labels.extend(list(combined_labels))
 #             st.success(f"{len(row_data)}개 학과 추가 완료!")
+# if st.button("추가"):
+#     # 체크한 학과가 없으면 무시
+#     if checked.empty:
+#         st.warning("추가할 학과를 먼저 선택하세요")
+#     else:
+#         # 수정 데이터와 원본 데이터 비교
+#         if not edited_data.equals(checked):
+#             # 수정된 데이터 추가
+#             st.session_state.selected = pd.concat(
+#                 [st.session_state.selected, edited_data],
+#                 ignore_index=True
+#                 )
+#             combined_labels = edited_data.apply(make_label, axis=1)
+#             st.session_state.labels.extend(list(combined_labels))
+#             st.success(f"{len(edited_data)}개 학과 (수정된 값) 추가 완료!")
+#         else:
+#             # 원본 그대로 추가
+#             st.session_state.selected = pd.concat(
+#                 [st.session_state.selected, checked],
+#                 ignore_index=True
+#             )
+#             combined_labels = checked.apply(make_label, axis=1)
+#             st.session_state.labels.extend(list(combined_labels))
+#             st.success(f"{len(checked)}개 학과 추가 완료!")
 if st.button("추가"):
-    # 체크한 학과가 없으면 무시
     if checked.empty:
         st.warning("추가할 학과를 먼저 선택하세요")
     else:
-        # 수정 데이터와 원본 데이터 비교
-        if not edited_data.equals(checked):
-            # 수정된 데이터 추가
-            st.session_state.selected = pd.concat(
-                [st.session_state.selected, edited_data],
-                ignore_index=True
-                )
-            combined_labels = edited_data.apply(make_label, axis=1)
-            st.session_state.labels.extend(list(combined_labels))
-            st.success(f"{len(edited_data)}개 학과 (수정된 값) 추가 완료!")
-        else:
-            # 원본 그대로 추가
-            st.session_state.selected = pd.concat(
-                [st.session_state.selected, checked],
-                ignore_index=True
-            )
-            combined_labels = checked.apply(make_label, axis=1)
-            st.session_state.labels.extend(list(combined_labels))
-            st.success(f"{len(checked)}개 학과 추가 완료!")
+        st.session_state.selected = pd.concat(
+            [st.session_state.selected, checked],
+            ignore_index=True
+        )
+        combined_labels = checked.apply(make_label, axis=1)
+        st.session_state.labels.extend(list(combined_labels))
+        st.success(f"{len(checked)}개 학과 추가 완료!")
 
 # ---------------------------------------
 # 6-1. 수정 반영 (이미 추가된 학과 업데이트)
 # ---------------------------------------
-if st.button("수정 반영"):
-    if not edited_data.empty:
-        for idx, row in edited_data.iterrows():
-            cond = (
-                (st.session_state.selected["학교"] == row["학교"]) &
-                (st.session_state.selected["학과"] == row["학과"])
-            )
-            st.session_state.selected.loc[cond, numeric_cols] = row[numeric_cols].values
+# if st.button("수정 반영"):
+#     if not edited_data.empty:
+#         for idx, row in edited_data.iterrows():
+#             cond = (
+#                 (st.session_state.selected["학교"] == row["학교"]) &
+#                 (st.session_state.selected["학과"] == row["학과"])
+#             )
+#             st.session_state.selected.loc[cond, numeric_cols] = row[numeric_cols].values
 
-        st.success("수정 사항이 반영되었습니다!")
+#         st.success("수정 사항이 반영되었습니다!")
 
 # ---------------------------------------
 # 7. 새로운 데이터 직접 추가 (체크박스 → 필요할 때만)
