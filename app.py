@@ -132,6 +132,8 @@ if "selected" not in st.session_state:
     st.session_state.selected = pd.DataFrame(columns=df.columns)
 if "labels" not in st.session_state:
     st.session_state.labels = []
+if "buffer" not in st.session_state: 
+    st.session_state.buffer = pd.DataFrame(columns=df.columns)
 
 # ---------------------------------------
 # 5. 값 수정하기 (체크박스 → 필요할 때만)
@@ -178,9 +180,9 @@ def make_label(row):
         return f"{school}\n{major}"
 
 if st.button("추가"):
-    if not row_data.empty:
+    if not checked.empty:
         # 수정된 경우 반영해서 추가
-        if not edited_data.equals(row_data):
+        if not edited_data.equals(checked):
             st.session_state.selected = pd.concat(
                 [st.session_state.selected, edited_data],
                 ignore_index=True
@@ -189,19 +191,18 @@ if st.button("추가"):
             # 학교 + 학과를 줄바꿈(\n)으로 결합
 
 
-            combined_labels = row_data.apply(make_label, axis=1)
-
+            combined_labels = edited_data.apply(make_label, axis=1)
 
             st.session_state.labels.extend(combined_labels.tolist())
             st.success(f"{len(edited_data)}개 학과 (수정된 값) 추가 완료!")
         else:
             st.session_state.selected = pd.concat(
-                [st.session_state.selected, row_data],
+                [st.session_state.selected, checked],
                 ignore_index=True
             )
             # st.session_state.labels.extend(row_data["학교"].tolist())
             # 학교 + 학과를 줄바꿈(\n)으로 결합
-            combined_labels = row_data.apply(
+            combined_labels = checked.apply(
                 lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
             )
 
