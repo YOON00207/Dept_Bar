@@ -47,6 +47,16 @@ def shorten_school(name: str) -> str:
         return name.replace("대학교", "대")
     return name
 
+def make_label(row):
+    school = shorten_school(row["학교"])
+    major = row["학과"]
+
+    # 특정 키워드가 있으면 학과는 제외
+    if any(keyword in school for keyword in ["본교", "거점국립대", "강원권 사립대"]):
+        return school
+    else:
+        return f"{school}\n{major}"
+
 row_data = pd.DataFrame()
 # schools = ["전체"] + df["학교"].dropna().unique().tolist()
 # school = st.multiselect("학교 선택", schools)
@@ -128,6 +138,8 @@ if not search_results.empty:
             if st.button('수정 반영하기'):
                 st.session_state.buffer = buffer_edit.copy()
                 st.session_state.selected = buffer_edit.copy()
+                st.session_state.labels = st.session_state.apply(make_label, axis=1).tolist()
+                
                 st.success("수정 사항이 반영되었습니다")
 
             
@@ -174,15 +186,6 @@ if "labels" not in st.session_state:
 # ---------------------------------------
 # 6. 선택 확정 (추가 버튼)
 # ---------------------------------------
-def make_label(row):
-    school = shorten_school(row["학교"])
-    major = row["학과"]
-
-    # 특정 키워드가 있으면 학과는 제외
-    if any(keyword in school for keyword in ["본교", "거점국립대", "강원권 사립대"]):
-        return school
-    else:
-        return f"{school}\n{major}"
 
 # if st.button("추가"):
 #     if not checked.empty:
