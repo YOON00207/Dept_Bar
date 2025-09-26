@@ -195,7 +195,7 @@ if st.button("추가"):
 
             combined_labels = edited_data.apply(make_label, axis=1)
 
-            st.session_state.labels.extend(combined_labels.tolist())
+            st.session_state.labels.extend(list(combined_labels))
             st.success(f"{len(edited_data)}개 학과 (수정된 값) 추가 완료!")
         else:
             st.session_state.selected = pd.concat(
@@ -208,7 +208,7 @@ if st.button("추가"):
                 lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
             )
 
-            st.session_state.labels.extend(combined_labels.tolist())
+            st.session_state.labels.extend(list(combined_labels))
             st.success(f"{len(row_data)}개 학과 추가 완료!")
 
 # ---------------------------------------
