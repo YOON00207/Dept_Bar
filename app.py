@@ -181,35 +181,57 @@ def make_label(row):
     else:
         return f"{school}\n{major}"
 
+# if st.button("추가"):
+#     if not checked.empty:
+#         # 수정된 경우 반영해서 추가
+#         if not edited_data.equals(checked):
+#             st.session_state.selected = pd.concat(
+#                 [st.session_state.selected, edited_data],
+#                 ignore_index=True
+#             )
+#             # st.session_state.labels.extend(edited_data["학교"].tolist())
+#             # 학교 + 학과를 줄바꿈(\n)으로 결합
+#             combined_labels = edited_data.apply(make_label, axis=1)
+
+#             st.session_state.labels.extend(list(combined_labels))
+#             st.success(f"{len(edited_data)}개 학과 (수정된 값) 추가 완료!")
+#         else:
+#             st.session_state.selected = pd.concat(
+#                 [st.session_state.selected, checked],
+#                 ignore_index=True
+#             )
+#             # st.session_state.labels.extend(row_data["학교"].tolist())
+#             # 학교 + 학과를 줄바꿈(\n)으로 결합
+#             combined_labels = checked.apply(
+#                 lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
+#             )
+
+#             st.session_state.labels.extend(list(combined_labels))
+#             st.success(f"{len(row_data)}개 학과 추가 완료!")
 if st.button("추가"):
-    if not checked.empty:
-        # 수정된 경우 반영해서 추가
+    # 체크한 학과가 없으면 무시
+    if checked.empty:
+        st.warning("추가할 학과를 먼저 선택하세요")
+    else:
+        # 수정 데이터와 원본 데이터 비교
         if not edited_data.equals(checked):
+            # 수정된 데이터 추가
             st.session_state.selected = pd.concat(
                 [st.session_state.selected, edited_data],
                 ignore_index=True
-            )
-            # st.session_state.labels.extend(edited_data["학교"].tolist())
-            # 학교 + 학과를 줄바꿈(\n)으로 결합
-
-
+                )
             combined_labels = edited_data.apply(make_label, axis=1)
-
             st.session_state.labels.extend(list(combined_labels))
             st.success(f"{len(edited_data)}개 학과 (수정된 값) 추가 완료!")
         else:
+            # 원본 그대로 추가
             st.session_state.selected = pd.concat(
                 [st.session_state.selected, checked],
                 ignore_index=True
             )
-            # st.session_state.labels.extend(row_data["학교"].tolist())
-            # 학교 + 학과를 줄바꿈(\n)으로 결합
-            combined_labels = checked.apply(
-                lambda x: f"{shorten_school(x['학교'])}\n{x['학과']}", axis=1
-            )
-
+            combined_labels = checked.apply(make_label, axis=1)
             st.session_state.labels.extend(list(combined_labels))
-            st.success(f"{len(row_data)}개 학과 추가 완료!")
+            st.success(f"{len(checked)}개 학과 추가 완료!")
 
 # ---------------------------------------
 # 6-1. 수정 반영 (이미 추가된 학과 업데이트)
