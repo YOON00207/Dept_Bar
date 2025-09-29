@@ -24,7 +24,7 @@ plt.rcParams['axes.unicode_minus'] = False
 
 files = {
     "2023 데이터": "0918학과경쟁력분석전체대학데이터셋.xlsx",
-    "2024 데이터(졸업생취업률 및 진학률은 2023년도 기준)": "2024대학데이터셋.xlsx"
+    "2024 데이터(졸업생 취업률 및 진학률은 2023년도 기준)": "2024대학데이터셋.xlsx"
 }
 
 choice = st.selectbox("데이터 선택", list(files.keys()))
