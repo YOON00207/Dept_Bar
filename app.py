@@ -88,6 +88,9 @@ else:
 if search_keyword:
     search_results = search_results[search_results["학과"].str.contains(search_keyword, na=False)]
 
+# 검색 결과 나오기 전, 안전하게 기본값 선언(에러 방지용)
+checked = pd.DataFrame(columns=df.columns)
+
 # 검색 결과 보여주기
 if not search_results.empty:
         st.subheader("검색 결과")
@@ -129,6 +132,13 @@ if not search_results.empty:
                 key = "buffer_editor"
             )
             if st.button('수정 반영하기'):
+                # 필수값 없는 행 제거
+                buffer_edit = buffer_edit.dropna(subset=["학교", "학과"])
+
+                # 사용자 안내 메시지
+                st.warning("학교와 학과가 입력되지 않은 행은 자동으로 삭제되었습니다.")
+
+                # 세션 상태 업데이트
                 st.session_state.buffer = buffer_edit.copy()
                 st.session_state.selected = buffer_edit.copy()
                 st.session_state.labels = st.session_state.selected.apply(make_label, axis=1).tolist()
