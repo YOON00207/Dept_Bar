@@ -24,7 +24,7 @@ plt.rcParams['axes.unicode_minus'] = False
 
 files = {
     "2023 데이터": "0918학과경쟁력분석전체대학데이터셋.xlsx",
-    "2024 데이터": "2024대학데이터셋.xlsx"
+    "2024 데이터(졸업생취업률 및 진학률은 2023년도 기준)": "2024대학데이터셋.xlsx"
 }
 
 choice = st.selectbox("데이터 선택", list(files.keys()))
@@ -34,11 +34,6 @@ def load_data(path):
     return pd.read_excel(path, engine="openpyxl")
 
 df = load_data(files[choice])
-# def load_data():
-#     file_path = "0918학과경쟁력분석전체대학데이터셋.xlsx"
-#     return pd.read_excel(file_path, engine="openpyxl")
-
-# df = load_data()
 
 if "buffer" not in st.session_state: 
     st.session_state.buffer = pd.DataFrame(columns=df.columns)
