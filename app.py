@@ -287,10 +287,20 @@ if not st.session_state.selected.empty:
                             fontproperties=font_prop_bar_label)
                     
                 # --- y축 상단 여백 확보 (두 지표의 최대값 기준) ---
-                all_max = max(
+                all_max_candidates = max(
                     pd.to_numeric(selected_df[m], errors="coerce").max(skipna=True)
                     for m in metrics_to_plot
                 )
+
+                #유효한 값만 추출
+                all_max_valid = [v for v in all_max_candidates if pd.notna(v) and np.isfinite(v)]
+
+                if all_max_valid : # 유효한 값이 하나라도 있을 때
+                    all_max = max(all_max_valid)
+
+                else: #전부 nan값일때
+                    all_max = 1.0
+
                 ax.set_ylim(0, all_max * 1.15)
 
 
@@ -317,7 +327,12 @@ if not st.session_state.selected.empty:
         bars = ax.bar(labels_wrapped, plot_values.fillna(0), color=colors, width = 0.3)
 
         # --- y축 상단 여백 확보 ---
-        ymax = plot_values.max() if len(plot_values) else 1
+        if plot_values.notna().any():   # 유효한 값이 하나라도 있을 때
+            ymax = float(plot_values.max())
+            if not np.isfinite(ymax):   # inf 같은 값 대비
+                ymax = 1.0
+        else:
+            ymax = 1.0   # 데이터가 전부 NaN일 때 기본값
         ax.set_ylim(0, ymax * 1.15)   # 값의 15% 여유 공간 확보
 
 
