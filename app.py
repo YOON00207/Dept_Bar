@@ -397,7 +397,7 @@ if not st.session_state.selected.empty:
     elif view_mode == "로그 스케일(>0만)":
         # 로그스케일은 0 이하 값이 있으면 불가
         if (all_vals.dropna() <= 0).any():
-            st.warning("로그 스케일은 0 이하 값에 적용할 수 없어요. 다른 모드를 사용해 주세요.")
+            st.warning("로그 스케일은 0 이하 값에 적용할 수 없습니다. 다른 모드를 사용해 주세요.")
         else:
             ax.set_yscale("log")
 
