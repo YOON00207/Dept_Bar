@@ -1,182 +1,182 @@
-# import streamlit as st
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# import matplotlib.font_manager as fm
-# import numpy as np
-# import textwrap
-# import matplotlib.patches as patches
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+import numpy as np
+import textwrap
+import matplotlib.patches as patches
 
-# st.set_page_config(layout="wide") 
+st.set_page_config(layout="wide") 
 
-# # -----------------------------
-# # 한글 폰트 설정
-# # -----------------------------
-# font_path = "KoPubWorld Dotum_Pro Medium.otf"
-# font_path2 = "KoPubWorld Dotum Bold.ttf"
-# font_name = fm.FontProperties(fname=font_path).get_name()
-# plt.rc('font', family=font_name)
-# plt.rcParams['axes.unicode_minus'] = False
+# -----------------------------
+# 한글 폰트 설정
+# -----------------------------
+font_path = "KoPubWorld Dotum_Pro Medium.otf"
+font_path2 = "KoPubWorld Dotum Bold.ttf"
+font_name = fm.FontProperties(fname=font_path).get_name()
+plt.rc('font', family=font_name)
+plt.rcParams['axes.unicode_minus'] = False
 
 
-# # ---------------------------------------
-# # 1. 데이터 불러오기
-# # ---------------------------------------
+# ---------------------------------------
+# 1. 데이터 불러오기
+# ---------------------------------------
 
-# files = {
-#     "2023 데이터": "0918학과경쟁력분석전체대학데이터셋.xlsx",
-#     "2024 데이터(졸업생 취업률 및 진학률은 2023년도 기준)": "2024대학데이터셋.xlsx"
-# }
+files = {
+    "2023 데이터": "0918학과경쟁력분석전체대학데이터셋.xlsx",
+    "2024 데이터(졸업생 취업률 및 진학률은 2023년도 기준)": "2024대학데이터셋.xlsx"
+}
 
-# choice = st.selectbox("데이터 선택", list(files.keys()))
+choice = st.selectbox("데이터 선택", list(files.keys()))
 
-# @st.cache_data
-# def load_data(path):
-#     return pd.read_excel(path, engine="openpyxl")
+@st.cache_data
+def load_data(path):
+    return pd.read_excel(path, engine="openpyxl")
 
-# df = load_data(files[choice])
+df = load_data(files[choice])
 
-# if "buffer" not in st.session_state: 
-#     st.session_state.buffer = pd.DataFrame(columns=df.columns)
+if "buffer" not in st.session_state: 
+    st.session_state.buffer = pd.DataFrame(columns=df.columns)
 
-# st.title("학과경쟁력분석")
+st.title("학과경쟁력분석")
 
-# # ---------------------------------------
-# # 2. 지표 선택
-# # ---------------------------------------
-# numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
-# selected_metric = st.selectbox("지표 선택", numeric_cols)
-# # ---------------------------------------
-# # 3. 학교 + 학과 검색 (str.contains)
-# # ---------------------------------------
-# # 학교명 변환 함수
-# def shorten_school(name: str) -> str:
-#     if isinstance(name, str):
-#         return name.replace("대학교", "대")
-#     return name
+# ---------------------------------------
+# 2. 지표 선택
+# ---------------------------------------
+numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
+selected_metric = st.selectbox("지표 선택", numeric_cols)
+# ---------------------------------------
+# 3. 학교 + 학과 검색 (str.contains)
+# ---------------------------------------
+# 학교명 변환 함수
+def shorten_school(name: str) -> str:
+    if isinstance(name, str):
+        return name.replace("대학교", "대")
+    return name
 
-# def make_label(row):
-#     school = shorten_school(row["학교"])
-#     major = row["학과"]
+def make_label(row):
+    school = shorten_school(row["학교"])
+    major = row["학과"]
 
-#     # 특정 키워드가 있으면 학과는 제외
-#     if any(keyword in school for keyword in ["본교", "거점국립대", "강원권 사립대"]):
-#         return school
-#     else:
-#         return f"{school}\n{major}"
+    # 특정 키워드가 있으면 학과는 제외
+    if any(keyword in school for keyword in ["본교", "거점국립대", "강원권 사립대"]):
+        return school
+    else:
+        return f"{school}\n{major}"
 
-# row_data = pd.DataFrame()
+row_data = pd.DataFrame()
 
-# # -------------------------
-# # 학교 선택 (여러 개 가능)
-# # -------------------------
-# schools_all = df["학교"].dropna().unique().tolist()
-# selected_schools = st.multiselect("학교 선택 (여러 개 가능)", ["전체"] + schools_all, default=["전체"])
+# -------------------------
+# 학교 선택 (여러 개 가능)
+# -------------------------
+schools_all = df["학교"].dropna().unique().tolist()
+selected_schools = st.multiselect("학교 선택 (여러 개 가능)", ["전체"] + schools_all, default=["전체"])
 
-# # -------------------------
-# # 학과 검색 (부분 일치)
-# # -------------------------
-# search_keyword = st.text_input("학과 검색어 입력")
+# -------------------------
+# 학과 검색 (부분 일치)
+# -------------------------
+search_keyword = st.text_input("학과 검색어 입력")
 
-# # -------------------------
-# # 조건 결합
-# # -------------------------
-# if "전체" in selected_schools or not selected_schools:
-#     search_results = df.copy()
-# else:
-#     search_results = df[df["학교"].isin(selected_schools)]
+# -------------------------
+# 조건 결합
+# -------------------------
+if "전체" in selected_schools or not selected_schools:
+    search_results = df.copy()
+else:
+    search_results = df[df["학교"].isin(selected_schools)]
 
-# if search_keyword:
-#     search_results = search_results[search_results["학과"].str.contains(search_keyword, na=False)]
+if search_keyword:
+    search_results = search_results[search_results["학과"].str.contains(search_keyword, na=False)]
 
-# # 검색 결과 나오기 전, 안전하게 기본값 선언(에러 방지용)
-# checked = pd.DataFrame(columns=df.columns)
+# 검색 결과 나오기 전, 안전하게 기본값 선언(에러 방지용)
+checked = pd.DataFrame(columns=df.columns)
 
-# # 검색 결과 보여주기
-# if not search_results.empty:
-#         st.subheader("검색 결과")
+# 검색 결과 보여주기
+if not search_results.empty:
+        st.subheader("검색 결과")
 
-#         # '추가' 체크박스 컬럼 붙이기
-#         search_results_display = search_results.copy()
-#         search_results_display["추가"] = False
+        # '추가' 체크박스 컬럼 붙이기
+        search_results_display = search_results.copy()
+        search_results_display["추가"] = False
 
-#         #추가 버튼 맨 앞으로 빼기
-#         cols = ["추가"] + [c for c in search_results_display.columns if c != "추가"]
-#         search_results_display = search_results_display[cols]
+        #추가 버튼 맨 앞으로 빼기
+        cols = ["추가"] + [c for c in search_results_display.columns if c != "추가"]
+        search_results_display = search_results_display[cols]
 
-#         # data_editor로 보여주기 (행 클릭해서 체크 가능)
-#         edited_results = st.data_editor(
-#             search_results_display,
-#             hide_index=True,
-#             use_container_width=True,
-#             num_rows="dynamic",
-#             key = "search_editor"
-#         )
+        # data_editor로 보여주기 (행 클릭해서 체크 가능)
+        edited_results = st.data_editor(
+            search_results_display,
+            hide_index=True,
+            use_container_width=True,
+            num_rows="dynamic",
+            key = "search_editor"
+        )
 
-#         # 체크된 학과만 필터링
-#         checked = edited_results[edited_results["추가"] == True].copy()
+        # 체크된 학과만 필터링
+        checked = edited_results[edited_results["추가"] == True].copy()
 
-#         if st.button('선택한 학과 불러오기'):
-#             if "buffer" not in st.session_state:
-#                 st.session_state.buffer = pd.DataFrame(columns = df.columns)
-#             st.session_state.buffer = pd.concat([st.session_state.buffer, checked], ignore_index=True)
-#             st.success(f"{len(checked)}개 학과 불러오기 완료")
+        if st.button('선택한 학과 불러오기'):
+            if "buffer" not in st.session_state:
+                st.session_state.buffer = pd.DataFrame(columns = df.columns)
+            st.session_state.buffer = pd.concat([st.session_state.buffer, checked], ignore_index=True)
+            st.success(f"{len(checked)}개 학과 불러오기 완료")
 
-#         if not st.session_state.buffer.empty:
-#             st.subheader("불러온 학과 목록 (행 추가 및 수정 가능)")
+        if not st.session_state.buffer.empty:
+            st.subheader("불러온 학과 목록 (행 추가 및 수정 가능)")
 
-#             buffer_edit = st.data_editor(
-#                 st.session_state.buffer,
-#                 num_rows = 'dynamic',
-#                 hide_index=True,
-#                 use_container_width=True,
-#                 key = "buffer_editor"
-#             )
-#             if st.button('수정 반영하기'):
-#                 # 필수값 없는 행 제거
-#                 buffer_edit = buffer_edit.dropna(subset=["학교", "학과"])
+            buffer_edit = st.data_editor(
+                st.session_state.buffer,
+                num_rows = 'dynamic',
+                hide_index=True,
+                use_container_width=True,
+                key = "buffer_editor"
+            )
+            if st.button('수정 반영하기'):
+                # 필수값 없는 행 제거
+                buffer_edit = buffer_edit.dropna(subset=["학교", "학과"])
 
-#                 # 사용자 안내 메시지
-#                 st.warning("학교와 학과가 입력되지 않은 행은 자동으로 삭제되었습니다.")
+                # 사용자 안내 메시지
+                st.warning("학교와 학과가 입력되지 않은 행은 자동으로 삭제되었습니다.")
 
-#                 # 세션 상태 업데이트
-#                 st.session_state.buffer = buffer_edit.copy()
-#                 st.session_state.selected = buffer_edit.copy()
-#                 st.session_state.labels = st.session_state.selected.apply(make_label, axis=1).tolist()
+                # 세션 상태 업데이트
+                st.session_state.buffer = buffer_edit.copy()
+                st.session_state.selected = buffer_edit.copy()
+                st.session_state.labels = st.session_state.selected.apply(make_label, axis=1).tolist()
                 
-#                 st.success("수정 사항이 반영되었습니다")
+                st.success("수정 사항이 반영되었습니다")
 
             
 
-# # ---------------------------------------
-# # 4. 세션 상태 초기화
-# # ---------------------------------------
-# if "selected" not in st.session_state:
-#     st.session_state.selected = pd.DataFrame(columns=df.columns)
-# if "labels" not in st.session_state:
-#     st.session_state.labels = []
+# ---------------------------------------
+# 4. 세션 상태 초기화
+# ---------------------------------------
+if "selected" not in st.session_state:
+    st.session_state.selected = pd.DataFrame(columns=df.columns)
+if "labels" not in st.session_state:
+    st.session_state.labels = []
 
 
 
-# # ---------------------------------------
-# # 5. 선택 확정 (추가 버튼)
-# # ---------------------------------------
-# if st.button('추가'):
-#     if checked.empty:
-#         st.warning("추가할 학과를 먼저 선택하세요")
-#     else:
-#         st.session_state.selected = pd.concat(
-#             [st.session_state.selected, checked],
-#             ignore_index=True
-#         )
-#         combined_labels = checked.apply(make_label, axis=1)
-#         st.session_state.labels.extend(list(combined_labels))
-#         st.success(f"{len(checked)}개 학과 추가 완료!")
+# ---------------------------------------
+# 5. 선택 확정 (추가 버튼)
+# ---------------------------------------
+if st.button('추가'):
+    if checked.empty:
+        st.warning("추가할 학과를 먼저 선택하세요")
+    else:
+        st.session_state.selected = pd.concat(
+            [st.session_state.selected, checked],
+            ignore_index=True
+        )
+        combined_labels = checked.apply(make_label, axis=1)
+        st.session_state.labels.extend(list(combined_labels))
+        st.success(f"{len(checked)}개 학과 추가 완료!")
 
 
 
-# # ---------------------------------------
-# # 6. 새로운 데이터 직접 추가 (체크박스 → 필요할 때만)
-# # ---------------------------------------
+# ---------------------------------------
+# 6. 새로운 데이터 직접 추가 (체크박스 → 필요할 때만)
+# ---------------------------------------
 # if st.checkbox("새로운 데이터 직접 추가"):
 #     st.subheader("신규 데이터 입력")
 #     new_school = st.text_input("학교명 입력")
@@ -190,24 +190,36 @@
 #         st.session_state.labels.append(new_major)
 #         st.success(f"{new_school} - {new_major} (신규 데이터) 추가 완료!")
 
-# # ---------------------------------------
-# # 7. 라벨 수정 기능
-# # ---------------------------------------
-# if st.session_state.selected.shape[0] > 0:
-#     st.subheader("X축 라벨 수정")
-#     new_labels = []
-#     for i, label in enumerate(st.session_state.labels):
-#         new_label = st.text_area(f"막대 {i+1} 라벨", value=label, key=f"label_{i}", height=50)
-#         new_labels.append(new_label)
-#     st.session_state.labels = new_labels
+with st.expander("새로운 데이터 직접 추가"):
+    new_school = st.text_input("학교명 입력", key="new_school")
+    new_major = st.text_input("학과명 입력", key="new_major")
+    new_values = {}
+    for col in numeric_cols:
+        new_values[col] = st.number_input(f"{col} 값 입력", value=0.0, key=f"new_{col}")
+    if st.button("신규 데이터 추가"):
+        new_row = pd.DataFrame([{**{"학교": new_school, "학과": new_major}, **new_values}])
+        st.session_state.selected = pd.concat([st.session_state.selected, new_row], ignore_index=True)
+        st.session_state.labels.append(make_label(new_row.iloc[0]))
+        st.success(f"{new_school} - {new_major} (신규 데이터) 추가 완료!")
 
-# # ---------------------------------------
-# # 8. 그래프 그리기  (줄바꿈/폰트/사이즈 강화)
-# # ---------------------------------------
+# ---------------------------------------
+# 7. 라벨 수정 기능
+# ---------------------------------------
+if st.session_state.selected.shape[0] > 0:
+    st.subheader("X축 라벨 수정")
+    new_labels = []
+    for i, label in enumerate(st.session_state.labels):
+        new_label = st.text_area(f"막대 {i+1} 라벨", value=label, key=f"label_{i}", height=50)
+        new_labels.append(new_label)
+    st.session_state.labels = new_labels
 
-# legend_font = fm.FontProperties(fname=font_path2, size=38, weight = "bold")
-# font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
-# font_prop_bar_label = fm.FontProperties(fname=font_path2, size=35, weight="bold")
+# ---------------------------------------
+# 8. 그래프 그리기  (줄바꿈/폰트/사이즈 강화)
+# ---------------------------------------
+
+legend_font = fm.FontProperties(fname=font_path2, size=38, weight = "bold")
+font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
+font_prop_bar_label = fm.FontProperties(fname=font_path2, size=35, weight="bold")
 
 # def wrap_label(s, width=10):
 #     s = str(s)
@@ -400,326 +412,6 @@
 #             st.warning("로그 스케일은 0 이하 값에 적용할 수 없습니다. 다른 모드를 사용해 주세요.")
 #         else:
 #             ax.set_yscale("log")
-
-#     # 공통 설정 (연구실적/일반 둘 다)
-#     ax.get_yaxis().set_visible(False)
-#     ax.legend(prop=legend_font)
-
-#     # 상단 제목 박스
-#     ax.add_patch(
-#         patches.Rectangle(
-#             (0, 1.02), 1, 0.15,
-#             transform=ax.transAxes, clip_on=False,
-#             facecolor="#dc0000", edgecolor="#dc0000"
-#         )
-#     )
-
-#     font_prop_title = fm.FontProperties(fname=font_path2, size=48, weight="bold")
-
-#     title_map = {
-#         "신입생 충원율(%)": "신입생 충원율 (2023년 기준, 단위 : %)",
-#         "신입생 경쟁률" : "신입생 경쟁률 (2023년 기준)",
-#         "재학생충원율" : "재학생 충원율 (2023년 기준, 단위 : %)",
-#         "중도탈락률(%)" : "중도탈락률 (2023년 기준, 단위 : %)",
-#         "캡스톤디자인 평균이수학생수" : "캡스톤디자인 평균 이수 학생 수 (2023년 기준, 단위 : 명)",
-#         "졸업생 취업률(%)" : "졸업생 취업률 (2023년 기준, 단위 : %)",
-#         "졸업생 진학률(%)" : "졸업생 진학률 (2023년 기준, 단위 : %)",
-#         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "교원 1인당 연구실적 (2023년 기준)",
-#         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "교원 1인당 연구실적 (2023년 기준)",
-#         "1인당 연구비(천원)": "교원 1인당 연구비 (2023년 기준, 단위 : 천원)"
-#     }
-#     # title_override 변수를 사용자가 선택할 수 있도록 설정 (예: Streamlit selectbox 등과 연동 가능)
-#     # 제목 수정 칸 (기본값은 빈칸, placeholder로 안내 문구)
-#     title_override = st.text_input("차트 제목 수정", value="", placeholder="여기에 제목을 입력하세요")
-
-#     # 최종 타이틀 결정
-#     if title_override and len(title_override.strip()) > 0:
-#         title = title_override
-#     else:
-#         title = title_map.get(selected_metric, f"{selected_metric} (2023년 기준)")
-
-#     ax.text(
-#         0.01, 1.1, title,
-#         ha="left", va="center",
-#         fontproperties=font_prop_title, color="white",
-#         transform=ax.transAxes
-#     )
-
-#     # Streamlit 렌더링
-#     plt.subplots_adjust(bottom=0.25)
-#     fig.tight_layout()
-#     st.pyplot(fig, use_container_width=True)
-
-#     # 선택된 학과 표 출력 + 삭제 버튼
-#     st.subheader("선택된 학과 목록")
-
-#     if not selected_df.empty:
-#         for idx, row in selected_df.iterrows():
-#             cols = st.columns([3, 3, 3, 2, 1])  # 열 비율 조정
-#             cols[0].write(row["학교"])
-#             cols[1].write(row["학과"])
-#             cols[2].write(st.session_state.labels[idx] if idx < len(st.session_state.labels) else "")
-#             cols[3].write(row[selected_metric])
-
-#             # 삭제 버튼
-#             if cols[4].button("❌", key=f"del_{idx}"):
-#                 # 데이터프레임에서 해당 행 삭제
-#                 st.session_state.selected = st.session_state.selected.drop(idx).reset_index(drop=True)
-
-#                 # 라벨 리스트에서 해당 요소 삭제 (안전하게 처리)
-#                 if idx < len(st.session_state.labels):
-#                     st.session_state.labels.pop(idx)
-
-#                 st.success(f"{row['학교']} - {row['학과']} 삭제 완료!")
-#                 st.rerun()  # 바로 렌더링 멈추고 새로 그림
-#     # ---------------------------------------
-#     # 10. 데이터 출처 표시 (토글)
-#     # ---------------------------------------
-#     if st.toggle("데이터 출처 보기"):
-#         st.markdown("""
-#         ### 📊 데이터 출처 및 계산식
-
-#         | 지표 | 출처 | 지표 계산에 사용한 열 | 특징 | 계산식 |
-#         |------|------|----------------------|------|--------|
-#         | 신입생 충원율(%) | [대학알리미] 공시 데이터 다운로드 → 4-다. 신입생 충원 현황| 정원내 신입생 충원율(%) (D/B) × 100 | 좌측 열 그대로 반영 | B=모집인원_정원내, D=입학자_정원내 |
-#         | 신입생 경쟁률(%) |[대학알리미] 공시 데이터 다운로드 → 4-다. 신입생 충원 현황| 경쟁률 (C/B) | 좌측 열 그대로 반영 |  |
-#         | 재학생 충원율(%) | [대학알리미] 공시 데이터 다운로드 → 4-라. 학생 충원 현황(편입학 포함) 중 재학생 충원율| 정원내 재학생 충원율(%){D/(A-B)}×100 | 계열별 자료 사용 | 2024년도 파일에는 2023하반기·2024상반기 / 2023년도 파일에는 2023상반기·2022하반기 존재하여<br>2023년 상·하반기 각각 추출해서 평균<br><br>A=학생정원, B=모집정지인원, D=재학생 정원내 |
-#         | 중도탈락률(%) | [대학알리미] 공시 데이터 다운로드 → 4-사. 중도탈락학생현황| 중도탈락학생비율(%) (B/A)×100 | 좌측 열 그대로 반영 | A=재적학생, B=중도탈락학생 계 |
-#         | 캡스톤디자인 평균이수학생수(명) | [대학알리미] 개별 요청 자료 (기관 담당자 제공) | 이수 학생수(명)_해당학과 |  |학과(주간)별 1,2학기 평균|
-#         | 졸업생 취업률(%) | [대학알리미] 공시데이터다운로드 →  5-다. 졸업생의 취업 현황| 취업률(%) [B/{A-(C+D+E+F+G)}]×100 | 좌측 열 그대로 반영 | A=졸업자, B=취업자, C=진학자, D=입대자, E=취업불가능자, F=외국인유학생, G=제외인정자 |
-#         | 졸업생 진학률(%) | [대학알리미] 공시데이터다운로드 →  5-다. 졸업생의 취업 현황| 졸업자(A), 진학자(C) | 좌측 열 그대로 반영 | 진학률 = 진학자 (남+여) / 졸업자(남+여) |
-#         | 교원 1인당 연구(논문) 실적(건) - 연구재단등재지 | [대학알리미] 공시 데이터 다운로드 → 7-가. 전임교원의 연구 실적| 전임교원 1인당 논문 실적_연구재단등재지(후보포함) | 좌측 열 그대로 반영 |  |
-#         | 교원 1인당 연구(논문) 실적(건) - SCI급/SCOPUS |[대학알리미] 공시 데이터 다운로드 → 7-가. 전임교원의 연구 실적| 전임교원 1인당 논문 실적_SCI급/SCOPUS학술지 | 좌측 열 그대로 반영 |  |
-#         | 교원 1인당 연구비 수혜 실적(천원) | [대학알리미] 공시 데이터 다운로드 → 12-가. 연구비 수혜 실적| 전임교원수, 연구비 계, 대응자금 | 좌측 열 그대로 반영 |교원 1인당 연구비 수혜 실적 = (연구비 지원 계(교내+교외) 남 + 연구비 지원 계 여 + 대응자금 남 + 대응자금 여) / (전임교원 남 + 전임교원 여) |
-#         """, unsafe_allow_html=True)
-
-
-
-# else:
-#     st.info("학교와 학과를 검색하고, 선택 후 [추가] 버튼을 눌러주세요.")
-
-
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
-import numpy as np
-import textwrap
-import matplotlib.patches as patches
-from io import BytesIO
-
-# =============================================================
-# 기본 페이지 설정
-# =============================================================
-st.set_page_config(page_title="학과경쟁력분석", layout="wide")
-
-# -----------------------------
-# 한글 폰트 설정 (안전한 폴백 포함)
-# -----------------------------
-FONT_PATH_MAIN = "KoPubWorld Dotum_Pro Medium.otf"
-FONT_PATH_BOLD = "KoPubWorld Dotum Bold.ttf"
-
-def _set_korean_font():
-    def _try(path):
-        try:
-            return fm.FontProperties(fname=path).get_name()
-        except Exception:
-            return None
-    name = _try(FONT_PATH_MAIN)
-    if name:
-        plt.rc('font', family=name)
-    else:
-        # 시스템 기본(DejaVuSans) 폴백
-        plt.rc('font', family='DejaVu Sans')
-    plt.rcParams['axes.unicode_minus'] = False
-
-_set_korean_font()
-
-# 굵은 폰트 속성(없으면 기본 굵기 사용)
-try:
-    LEGEND_FONT = fm.FontProperties(fname=FONT_PATH_BOLD, size=38, weight="bold")
-    X_LABEL_FONT = fm.FontProperties(fname=FONT_PATH_BOLD, size=30, weight="bold")
-    BAR_LABEL_FONT = fm.FontProperties(fname=FONT_PATH_BOLD, size=35, weight="bold")
-    TITLE_FONT = fm.FontProperties(fname=FONT_PATH_BOLD, size=48, weight="bold")
-except Exception:
-    LEGEND_FONT = None
-    X_LABEL_FONT = None
-    BAR_LABEL_FONT = None
-    TITLE_FONT = None
-
-# =============================================================
-# 1) 데이터 소스 선택/업로드
-# =============================================================
-DEFAULT_FILES = {
-    "2023 데이터": "0918학과경쟁력분석전체대학데이터셋.xlsx",
-    "2024 데이터(졸업생 취업률 및 진학률은 2023년도 기준)": "2024대학데이터셋.xlsx",
-}
-
-left, right = st.columns([2, 1])
-with left:
-    st.markdown("### 데이터 선택 또는 업로드")
-    file_choice = st.selectbox("데이터 선택", list(DEFAULT_FILES.keys()))
-with right:
-    uploaded = st.file_uploader("직접 업로드(Excel)", type=["xlsx", "xls"])
-
-@st.cache_data(show_spinner=False)
-def load_data(file_like_or_path):
-    try:
-        return pd.read_excel(file_like_or_path, engine="openpyxl")
-    except Exception as e:
-        st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
-        return pd.DataFrame()
-
-if uploaded:
-    df = load_data(uploaded)
-else:
-    df = load_data(DEFAULT_FILES[file_choice])
-
-if df.empty:
-    st.stop()
-
-# 세션 상태 초기화
-if "buffer" not in st.session_state:
-    st.session_state.buffer = pd.DataFrame(columns=df.columns)
-if "selected" not in st.session_state:
-    st.session_state.selected = pd.DataFrame(columns=df.columns)
-if "labels" not in st.session_state:
-    st.session_state.labels = []
-
-st.title("학과경쟁력분석")
-
-# =============================================================
-# 2) 지표 선택
-# =============================================================
-numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
-if not numeric_cols:
-    st.warning("수치형 지표가 없습니다. 엑셀 파일의 수치형 열을 확인하세요.")
-    st.stop()
-selected_metric = st.selectbox("지표 선택", numeric_cols)
-
-# =============================================================
-# 3) 학교/학과 검색 및 버퍼 편집
-# =============================================================
-
-def shorten_school(name: str) -> str:
-    if isinstance(name, str):
-        return name.replace("대학교", "대")
-    return name
-
-
-def make_label(row: pd.Series) -> str:
-    school = shorten_school(row.get("학교", ""))
-    major = row.get("학과", "")
-    if any(k in str(school) for k in ["본교", "거점국립대", "강원권 사립대"]):
-        return str(school)
-    return f"{school}\n{major}".strip()
-
-schools_all = (
-    df["학교"].dropna().astype(str).unique().tolist() if "학교" in df.columns else []
-)
-selected_schools = st.multiselect(
-    "학교 선택 (여러 개 가능)", ["전체"] + schools_all, default=["전체"]
-)
-search_keyword = st.text_input("학과 검색어 입력")
-
-# 조건 결합
-if "전체" in selected_schools or not selected_schools:
-    search_results = df.copy()
-else:
-    search_results = df[df["학교"].isin(selected_schools)].copy()
-
-if search_keyword:
-    # 부분일치, NaN 안전 처리
-    if "학과" in search_results.columns:
-        search_results = search_results[search_results["학과"].astype(str).str.contains(search_keyword, na=False)]
-    else:
-        st.warning("데이터에 '학과' 열이 없습니다.")
-
-# 검색 결과 테이블
-checked = pd.DataFrame(columns=df.columns)
-if not search_results.empty:
-    st.subheader("검색 결과")
-
-    display = search_results.copy()
-    display.insert(0, "추가", False)
-
-    edited_results = st.data_editor(
-        display,
-        hide_index=True,
-        use_container_width=True,
-        num_rows="dynamic",
-        key="search_editor",
-    )
-    checked = edited_results[edited_results["추가"] == True].copy()
-
-    # 버퍼로 불러오기
-    c1, c2 = st.columns([1, 3])
-    with c1:
-        if st.button("선택한 학과 불러오기"):
-            if st.session_state.buffer.empty:
-                st.session_state.buffer = pd.DataFrame(columns=df.columns)
-            tmp = pd.concat([st.session_state.buffer, checked], ignore_index=True)
-            # 중복 제거 (학교+학과 기준)
-            if {"학교", "학과"}.issubset(tmp.columns):
-                tmp = tmp.drop_duplicates(subset=["학교", "학과"], keep="first")
-            st.session_state.buffer = tmp
-            st.success(f"{len(checked)}개 학과 불러오기 완료")
-
-    if not st.session_state.buffer.empty:
-        st.subheader("불러온 학과 목록 (행 추가 및 수정 가능)")
-        buffer_edit = st.data_editor(
-            st.session_state.buffer,
-            num_rows="dynamic",
-            hide_index=True,
-            use_container_width=True,
-            key="buffer_editor",
-        )
-        colA, colB = st.columns(2)
-        with colA:
-            if st.button("수정 반영하기"):
-                # 필수값 없는 행 제거
-                if {"학교", "학과"}.issubset(buffer_edit.columns):
-                    buffer_edit = buffer_edit.dropna(subset=["학교", "학과"]).copy()
-                st.warning("학교와 학과가 입력되지 않은 행은 자동으로 삭제되었습니다.")
-                st.session_state.buffer = buffer_edit.copy()
-                st.session_state.selected = buffer_edit.copy()
-                st.session_state.labels = st.session_state.selected.apply(make_label, axis=1).tolist()
-                st.success("수정 사항이 반영되었습니다")
-        with colB:
-            if st.button("선택 초기화"):
-                st.session_state.buffer = pd.DataFrame(columns=df.columns)
-                st.session_state.selected = pd.DataFrame(columns=df.columns)
-                st.session_state.labels = []
-                st.toast("선택이 초기화되었습니다.")
-
-# =============================================================
-# 4) 신규 데이터 추가(선택 사항)
-# =============================================================
-with st.expander("새로운 데이터 직접 추가"):
-    new_school = st.text_input("학교명 입력", key="new_school")
-    new_major = st.text_input("학과명 입력", key="new_major")
-    new_values = {}
-    for col in numeric_cols:
-        new_values[col] = st.number_input(f"{col} 값 입력", value=0.0, key=f"new_{col}")
-    if st.button("신규 데이터 추가"):
-        new_row = pd.DataFrame([{**{"학교": new_school, "학과": new_major}, **new_values}])
-        st.session_state.selected = pd.concat([st.session_state.selected, new_row], ignore_index=True)
-        st.session_state.labels.append(make_label(new_row.iloc[0]))
-        st.success(f"{new_school} - {new_major} (신규 데이터) 추가 완료!")
-
-# =============================================================
-# 5) 라벨 수정
-# =============================================================
-if st.session_state.selected.shape[0] > 0:
-    st.subheader("X축 라벨 수정")
-    tmp_labels = []
-    for i, label in enumerate(st.session_state.labels):
-        new_label = st.text_area(f"막대 {i+1} 라벨", value=str(label), key=f"label_{i}", height=50)
-        tmp_labels.append(new_label)
-    st.session_state.labels = tmp_labels
-
-# =============================================================
-# 6) 그래프 그리기
 # =============================================================
 
 def wrap_label(s: str, width: int = 10) -> str:
@@ -880,70 +572,100 @@ if not st.session_state.selected.empty:
         patches.Rectangle((0, 1.02), 1, 0.15, transform=ax.transAxes, clip_on=False, facecolor="#dc0000", edgecolor="#dc0000")
     )
 
+
+    # 공통 설정 (연구실적/일반 둘 다)
+    ax.get_yaxis().set_visible(False)
+    ax.legend(prop=legend_font)
+
+    # 상단 제목 박스
+    ax.add_patch(
+        patches.Rectangle(
+            (0, 1.02), 1, 0.15,
+            transform=ax.transAxes, clip_on=False,
+            facecolor="#dc0000", edgecolor="#dc0000"
+        )
+    )
+
+    font_prop_title = fm.FontProperties(fname=font_path2, size=48, weight="bold")
+
     title_map = {
         "신입생 충원율(%)": "신입생 충원율 (2023년 기준, 단위 : %)",
-        "신입생 경쟁률": "신입생 경쟁률 (2023년 기준)",
-        "재학생충원율": "재학생 충원율 (2023년 기준, 단위 : %)",
-        "중도탈락률(%)": "중도탈락률 (2023년 기준, 단위 : %)",
-        "캡스톤디자인 평균이수학생수": "캡스톤디자인 평균 이수 학생 수 (2023년 기준, 단위 : 명)",
-        "졸업생 취업률(%)": "졸업생 취업률 (2023년 기준, 단위 : %)",
-        "졸업생 진학률(%)": "졸업생 진학률 (2023년 기준, 단위 : %)",
+        "신입생 경쟁률" : "신입생 경쟁률 (2023년 기준)",
+        "재학생충원율" : "재학생 충원율 (2023년 기준, 단위 : %)",
+        "중도탈락률(%)" : "중도탈락률 (2023년 기준, 단위 : %)",
+        "캡스톤디자인 평균이수학생수" : "캡스톤디자인 평균 이수 학생 수 (2023년 기준, 단위 : 명)",
+        "졸업생 취업률(%)" : "졸업생 취업률 (2023년 기준, 단위 : %)",
+        "졸업생 진학률(%)" : "졸업생 진학률 (2023년 기준, 단위 : %)",
         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "교원 1인당 연구실적 (2023년 기준)",
         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "교원 1인당 연구실적 (2023년 기준)",
-        "1인당 연구비(천원)": "교원 1인당 연구비 (2023년 기준, 단위 : 천원)",
+        "1인당 연구비(천원)": "교원 1인당 연구비 (2023년 기준, 단위 : 천원)"
     }
-
+    # title_override 변수를 사용자가 선택할 수 있도록 설정 (예: Streamlit selectbox 등과 연동 가능)
+    # 제목 수정 칸 (기본값은 빈칸, placeholder로 안내 문구)
     title_override = st.text_input("차트 제목 수정", value="", placeholder="여기에 제목을 입력하세요")
-    title = title_override.strip() if title_override.strip() else title_map.get(selected_metric, f"{selected_metric} (2023년 기준)")
-    ax.text(0.01, 1.1, title, ha="left", va="center", fontproperties=TITLE_FONT, color="white", transform=ax.transAxes)
 
-    ax.legend(prop=LEGEND_FONT)
+    # 최종 타이틀 결정
+    if title_override and len(title_override.strip()) > 0:
+        title = title_override
+    else:
+        title = title_map.get(selected_metric, f"{selected_metric} (2023년 기준)")
+
+    ax.text(
+        0.01, 1.1, title,
+        ha="left", va="center",
+        fontproperties=font_prop_title, color="white",
+        transform=ax.transAxes
+    )
+
+    # Streamlit 렌더링
     plt.subplots_adjust(bottom=0.25)
     fig.tight_layout()
     st.pyplot(fig, use_container_width=True)
 
-    # 이미지 다운로드
-    buf = BytesIO()
-    fig.savefig(buf, format="png", dpi=200, bbox_inches="tight")
-    buf.seek(0)
-    st.download_button("차트 PNG 다운로드", data=buf, file_name="chart.png", mime="image/png")
-
-    # 선택된 학과 목록 + 삭제 기능
+    # 선택된 학과 표 출력 + 삭제 버튼
     st.subheader("선택된 학과 목록")
+
     if not selected_df.empty:
         for idx, row in selected_df.iterrows():
-            cols = st.columns([3, 3, 3, 2, 1])
-            cols[0].write(row.get("학교", ""))
-            cols[1].write(row.get("학과", ""))
+            cols = st.columns([3, 3, 3, 2, 1])  # 열 비율 조정
+            cols[0].write(row["학교"])
+            cols[1].write(row["학과"])
             cols[2].write(st.session_state.labels[idx] if idx < len(st.session_state.labels) else "")
-            cols[3].write(row.get(selected_metric, np.nan))
+            cols[3].write(row[selected_metric])
+
+            # 삭제 버튼
             if cols[4].button("❌", key=f"del_{idx}"):
+                # 데이터프레임에서 해당 행 삭제
                 st.session_state.selected = st.session_state.selected.drop(idx).reset_index(drop=True)
+
+                # 라벨 리스트에서 해당 요소 삭제 (안전하게 처리)
                 if idx < len(st.session_state.labels):
                     st.session_state.labels.pop(idx)
-                st.success(f"{row.get('학교','')} - {row.get('학과','')} 삭제 완료!")
-                st.rerun()
 
-    # 데이터 출처 토글
+                st.success(f"{row['학교']} - {row['학과']} 삭제 완료!")
+                st.rerun()  # 바로 렌더링 멈추고 새로 그림
+    # ---------------------------------------
+    # 10. 데이터 출처 표시 (토글)
+    # ---------------------------------------
     if st.toggle("데이터 출처 보기"):
-        st.markdown(
-            """
-            ### 📊 데이터 출처 및 계산식
+        st.markdown("""
+        ### 📊 데이터 출처 및 계산식
 
-            | 지표 | 출처 | 지표 계산에 사용한 열 | 특징 | 계산식 |
-            |------|------|----------------------|------|--------|
-            | 신입생 충원율(%) | [대학알리미] 공시 데이터 다운로드 → 4-다. 신입생 충원 현황| 정원내 신입생 충원율(%) (D/B) × 100 | 좌측 열 그대로 반영 | B=모집인원_정원내, D=입학자_정원내 |
-            | 신입생 경쟁률(%) |[대학알리미] 공시 데이터 다운로드 → 4-다. 신입생 충원 현황| 경쟁률 (C/B) | 좌측 열 그대로 반영 |  |
-            | 재학생 충원율(%) | [대학알리미] 공시 데이터 다운로드 → 4-라. 학생 충원 현황(편입학 포함) 중 재학생 충원율| 정원내 재학생 충원율(%){D/(A-B)}×100 | 계열별 자료 사용 | 2024년도 파일에는 2023하반기·2024상반기 / 2023년도 파일에는 2023상반기·2022하반기 존재하여<br>2023년 상·하반기 각각 추출해서 평균<br><br>A=학생정원, B=모집정지인원, D=재학생 정원내 |
-            | 중도탈락률(%) | [대학알리미] 공시 데이터 다운로드 → 4-사. 중도탈락학생현황| 중도탈락학생비율(%) (B/A)×100 | 좌측 열 그대로 반영 | A=재적학생, B=중도탈락학생 계 |
-            | 캡스톤디자인 평균이수학생수(명) | [대학알리미] 개별 요청 자료 (기관 담당자 제공) | 이수 학생수(명)_해당학과 |  |학과(주간)별 1,2학기 평균|
-            | 졸업생 취업률(%) | [대학알리미] 공시데이터다운로드 →  5-다. 졸업생의 취업 현황| 취업률(%) [B/{A-(C+D+E+F+G)}]×100 | 좌측 열 그대로 반영 | A=졸업자, B=취업자, C=진학자, D=입대자, E=취업불가능자, F=외국인유학생, G=제외인정자 |
-            | 졸업생 진학률(%) | [대학알리미] 공시데이터다운로드 →  5-다. 졸업생의 취업 현황| 졸업자(A), 진학자(C) | 좌측 열 그대로 반영 | 진학률 = 진학자 (남+여) / 졸업자(남+여) |
-            | 교원 1인당 연구(논문) 실적(건) - 연구재단등재지 | [대학알리미] 공시 데이터 다운로드 → 7-가. 전임교원의 연구 실적| 전임교원 1인당 논문 실적_연구재단등재지(후보포함) | 좌측 열 그대로 반영 |  |
-            | 교원 1인당 연구(논문) 실적(건) - SCI급/SCOPUS |[대학알리미] 공시 데이터 다운로드 → 7-가. 전임교원의 연구 실적| 전임교원 1인당 논문 실적_SCI급/SCOPUS학술지 | 좌측 열 그대로 반영 |  |
-            | 교원 1인당 연구비 수혜 실적(천원) | [대학알리미] 공시 데이터 다운로드 → 12-가. 연구비 수혜 실적| 전임교원수, 연구비 계, 대응자금 | 좌측 열 그대로 반영 |교원 1인당 연구비 수혜 실적 = (연구비 지원 계(교내+교외) 남 + 연구비 지원 계 여 + 대응자금 남 + 대응자금 여) / (전임교원 남 + 전임교원 여) |
-            """,
-            unsafe_allow_html=True,
-        )
+        | 지표 | 출처 | 지표 계산에 사용한 열 | 특징 | 계산식 |
+        |------|------|----------------------|------|--------|
+        | 신입생 충원율(%) | [대학알리미] 공시 데이터 다운로드 → 4-다. 신입생 충원 현황| 정원내 신입생 충원율(%) (D/B) × 100 | 좌측 열 그대로 반영 | B=모집인원_정원내, D=입학자_정원내 |
+        | 신입생 경쟁률(%) |[대학알리미] 공시 데이터 다운로드 → 4-다. 신입생 충원 현황| 경쟁률 (C/B) | 좌측 열 그대로 반영 |  |
+        | 재학생 충원율(%) | [대학알리미] 공시 데이터 다운로드 → 4-라. 학생 충원 현황(편입학 포함) 중 재학생 충원율| 정원내 재학생 충원율(%){D/(A-B)}×100 | 계열별 자료 사용 | 2024년도 파일에는 2023하반기·2024상반기 / 2023년도 파일에는 2023상반기·2022하반기 존재하여<br>2023년 상·하반기 각각 추출해서 평균<br><br>A=학생정원, B=모집정지인원, D=재학생 정원내 |
+        | 중도탈락률(%) | [대학알리미] 공시 데이터 다운로드 → 4-사. 중도탈락학생현황| 중도탈락학생비율(%) (B/A)×100 | 좌측 열 그대로 반영 | A=재적학생, B=중도탈락학생 계 |
+        | 캡스톤디자인 평균이수학생수(명) | [대학알리미] 개별 요청 자료 (기관 담당자 제공) | 이수 학생수(명)_해당학과 |  |학과(주간)별 1,2학기 평균|
+        | 졸업생 취업률(%) | [대학알리미] 공시데이터다운로드 →  5-다. 졸업생의 취업 현황| 취업률(%) [B/{A-(C+D+E+F+G)}]×100 | 좌측 열 그대로 반영 | A=졸업자, B=취업자, C=진학자, D=입대자, E=취업불가능자, F=외국인유학생, G=제외인정자 |
+        | 졸업생 진학률(%) | [대학알리미] 공시데이터다운로드 →  5-다. 졸업생의 취업 현황| 졸업자(A), 진학자(C) | 좌측 열 그대로 반영 | 진학률 = 진학자 (남+여) / 졸업자(남+여) |
+        | 교원 1인당 연구(논문) 실적(건) - 연구재단등재지 | [대학알리미] 공시 데이터 다운로드 → 7-가. 전임교원의 연구 실적| 전임교원 1인당 논문 실적_연구재단등재지(후보포함) | 좌측 열 그대로 반영 |  |
+        | 교원 1인당 연구(논문) 실적(건) - SCI급/SCOPUS |[대학알리미] 공시 데이터 다운로드 → 7-가. 전임교원의 연구 실적| 전임교원 1인당 논문 실적_SCI급/SCOPUS학술지 | 좌측 열 그대로 반영 |  |
+        | 교원 1인당 연구비 수혜 실적(천원) | [대학알리미] 공시 데이터 다운로드 → 12-가. 연구비 수혜 실적| 전임교원수, 연구비 계, 대응자금 | 좌측 열 그대로 반영 |교원 1인당 연구비 수혜 실적 = (연구비 지원 계(교내+교외) 남 + 연구비 지원 계 여 + 대응자금 남 + 대응자금 여) / (전임교원 남 + 전임교원 여) |
+        """, unsafe_allow_html=True)
+
+
+
 else:
-    st.info("학교와 학과를 검색하고, 선택 후 [선택한 학과 불러오기] 또는 [신규 데이터 추가]를 사용하세요.")
+    st.info("학교와 학과를 검색하고, 선택 후 [추가] 버튼을 눌러주세요.")
