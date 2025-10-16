@@ -288,12 +288,20 @@ if not st.session_state.selected.empty:
                     ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i], label = '주요 분포 범위(±1σ)')
 
                 # --- 막대 ---
-                bars = ax.bar(x + i*bar_width, plot_vals.fillna(0), width=bar_width, color=colors[i])
+                # bars = ax.bar(x + i*bar_width, plot_vals.fillna(0), width=bar_width, color=colors[i])
+                bars = ax.bar(
+                    x + i*bar_width,
+                    plot_vals.fillna(0),
+                    width=bar_width,
+                    color=colors[i],
+                    label=legend_map[metric]   # ✅ 범례용 라벨 추가
+                )
+
 
                 # --- 값 라벨 (NaN은 빈칸) ---
                 for bar, orig in zip(bars, vals):
                     h = bar.get_height()
-                    label = "" if pd.isna(orig) else f"{orig:.1f}"
+                    label = "" if pd.isna(orig) else f"{orig:.3f}"
                     ax.text(bar.get_x() + bar.get_width()/2, h + 0.02,
                             label, ha="center", va="bottom",
                             fontproperties=font_prop_bar_label)
