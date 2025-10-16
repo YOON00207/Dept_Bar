@@ -298,19 +298,33 @@ if not st.session_state.selected.empty:
                             label, ha="center", va="bottom",
                             fontproperties=font_prop_bar_label)
                     
-                # --- y축 상단 여백 확보 (두 지표의 최대값 기준) ---
-                all_max_candidates = max(
+                # # --- y축 상단 여백 확보 (두 지표의 최대값 기준) ---
+                # all_max_candidates = max(
+                #     pd.to_numeric(selected_df[m], errors="coerce").max(skipna=True)
+                #     for m in metrics_to_plot
+                # )
+
+                # #유효한 값만 추출
+                # all_max_valid = [v for v in all_max_candidates if pd.notna(v) and np.isfinite(v)]
+
+                # if all_max_valid : # 유효한 값이 하나라도 있을 때
+                #     all_max = max(all_max_valid)
+
+                # else: #전부 nan값일때
+                #     all_max = 1.0
+
+                # ax.set_ylim(0, all_max * 1.15)
+                all_max_candidates = [
                     pd.to_numeric(selected_df[m], errors="coerce").max(skipna=True)
                     for m in metrics_to_plot
-                )
+                ]
 
-                #유효한 값만 추출
+                # 유효한 값만 추출
                 all_max_valid = [v for v in all_max_candidates if pd.notna(v) and np.isfinite(v)]
 
-                if all_max_valid : # 유효한 값이 하나라도 있을 때
+                if all_max_valid:  # 유효한 값이 하나라도 있을 때
                     all_max = max(all_max_valid)
-
-                else: #전부 nan값일때
+                else:  # 전부 nan값일때
                     all_max = 1.0
 
                 ax.set_ylim(0, all_max * 1.15)
