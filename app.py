@@ -221,361 +221,199 @@ legend_font = fm.FontProperties(fname=font_path2, size=38, weight = "bold")
 font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
 font_prop_bar_label = fm.FontProperties(fname=font_path2, size=35, weight="bold")
 
-# def wrap_label(s, width=10):
-#     s = str(s)
-#     return "\n".join(textwrap.wrap(s, width=width, break_long_words=False)) if s else s
-
-# def is_percent_metric(name, series):
-#     if "%" in str(name):
-#         return True
-#     s = pd.to_numeric(series, errors="coerce").dropna()
-#     return (not s.empty) and s.min() >= 0 and s.max() <= 100
-
-# if not st.session_state.selected.empty:
-#     selected_df = st.session_state.selected.copy()
-#     selected_df[selected_metric] = pd.to_numeric(selected_df[selected_metric], errors="coerce")
-#     values_raw = selected_df[selected_metric]
-#     labels_wrapped = [wrap_label(x) for x in st.session_state.labels]
-
-#     # === 보기 모드 ===
-#     view_mode = st.selectbox(
-#         "표시 방식",
-#         ["원본", "상단 확대", "로그 스케일(>0만)"]
-#     )
-
-#     # 평균/표준편차 계산 (NaN 제외)
-#     base_for_stats = values_raw.dropna()
-#     if base_for_stats.empty:
-#         mean, std = np.nan, np.nan
-#     else:
-#         mean = float(base_for_stats.mean())
-#         std  = float(base_for_stats.std(ddof=1))
-
-#     fig, ax = plt.subplots(figsize=(18, 10), dpi=200)
-
-#     # ==========================================
-#     # 연구실적(논문) → 막대 2개씩
-#     # ==========================================
-#     if selected_metric in [
-#         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
-#         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
-#     ]:
-#         metrics_to_plot = [
-#             "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
-#             "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
-#         ]
-#         legend_map = {
-#         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "연구재단 등재지(후보포함)",
-#         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "SCI/SCOPUS 학술지"
-#     }
-
-
-#         bar_width = 0.35
-#         x = np.arange(len(st.session_state.labels))
-#         colors = ["#dc0000", "#00005d"]
-
-#         for i, metric in enumerate(metrics_to_plot):
-#                 vals = pd.to_numeric(selected_df[metric], errors="coerce")
-#                 plot_vals = vals
-
-#                 # --- 평균/표준편차 (NaN 제외) ---
-#                 base = vals.dropna()
-#                 if not base.empty:
-#                     mean_i = float(base.mean())
-#                     std_i  = float(base.std(ddof=1))
-#                     ax.axhline(mean_i, color=colors[i], linestyle="--", linewidth=2,
-#                             label=f"{legend_map[metric]} 평균: {mean_i:.2f}")
-#                     ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i], label = '주요 분포 범위(±1σ)')
-
-#                 # --- 막대 ---
-#                 bars = ax.bar(x + i*bar_width, plot_vals.fillna(0), width=bar_width, color=colors[i])
-
-#                 # --- 값 라벨 (NaN은 빈칸) ---
-#                 for bar, orig in zip(bars, vals):
-#                     h = bar.get_height()
-#                     label = "" if pd.isna(orig) else f"{orig:.1f}"
-#                     ax.text(bar.get_x() + bar.get_width()/2, h + 0.02,
-#                             label, ha="center", va="bottom",
-#                             fontproperties=font_prop_bar_label)
-                    
-#                 # --- y축 상단 여백 확보 (두 지표의 최대값 기준) ---
-#                 all_max_candidates = max(
-#                     pd.to_numeric(selected_df[m], errors="coerce").max(skipna=True)
-#                     for m in metrics_to_plot
-#                 )
-
-#                 #유효한 값만 추출
-#                 all_max_valid = [v for v in all_max_candidates if pd.notna(v) and np.isfinite(v)]
-
-#                 if all_max_valid : # 유효한 값이 하나라도 있을 때
-#                     all_max = max(all_max_valid)
-
-#                 else: #전부 nan값일때
-#                     all_max = 1.0
-
-#                 ax.set_ylim(0, all_max * 1.15)
-
-
-#         # --- X축 라벨 ---
-#         ax.set_xticks(x + bar_width/2)
-#         # X축 라벨 적용 (줄바꿈 허용)
-#         ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
-#                         fontproperties=font_prop_x_label)
-
-
-#     # ==========================================
-#     # 일반 지표 → 막대 1개
-#     # ==========================================
-#     else:
-#         plot_values = values_raw
-#         colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
-
-        
-#         # 평균선/±1σ
-#         if np.isfinite(mean) and np.isfinite(std):
-#             ax.axhline(mean, color="black", linestyle="--", linewidth=2, label=f"평균: {mean:.2f}")
-#             ax.axhspan(mean - std, mean + std, alpha=0.18, color="#ffcccc", label="주요 분포 범위(±1σ)")
-
-#         bars = ax.bar(labels_wrapped, plot_values.fillna(0), color=colors, width = 0.3)
-
-#         # --- y축 상단 여백 확보 ---
-#         if plot_values.notna().any():   # 유효한 값이 하나라도 있을 때
-#             ymax = float(plot_values.max())
-#             if not np.isfinite(ymax):   # inf 같은 값 대비
-#                 ymax = 1.0
-#         else:
-#             ymax = 1.0   # 데이터가 전부 NaN일 때 기본값
-#         ax.set_ylim(0, ymax * 1.15)   # 값의 15% 여유 공간 확보
-
-
-#         # 값 라벨
-#         def _fmt(v):
-#             if pd.isna(v): return ""
-#             return f"{v:.1f}"
-#         ax.bar_label(bars, labels=[_fmt(v) for v in values_raw],
-#                      padding=6, fontproperties=font_prop_bar_label)
-
-#         # X축 라벨
-#         ax.tick_params(axis='x', labelsize=30)
-#         ax.tick_params(axis='y', labelsize=22)
-#         # X축 라벨 적용 (줄바꿈 허용)
-#         ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
-#                         fontproperties=font_prop_x_label)
-
-#     # === 모드별 추가 처리 (두 케이스 공통) ===
-#     # 연구실적(2축)일 때와 일반(1축)일 때 모두에서 쓸 y값 범위 계산
-#     if selected_metric in [
-#         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
-#         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
-#     ]:
-#         metrics_to_plot = [
-#             "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
-#             "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
-#         ]
-#         all_vals = pd.concat([
-#             pd.to_numeric(selected_df[m], errors="coerce")
-#             for m in metrics_to_plot
-#         ])
-#     else:
-#         all_vals = pd.to_numeric(selected_df[selected_metric], errors="coerce")
-
-#     # 안전한 min/max 계산 (전부 NaN인 경우 대비)
-#     if all_vals.notna().any():
-#         vmin = float(np.nanmin(all_vals))
-#         vmax = float(np.nanmax(all_vals))
-#         if vmin == vmax:
-#             vmax = vmin + 1.0  # 슬라이더 에러 방지용
-#     else:
-#         vmin, vmax = 0.0, 1.0
-
-#     if view_mode == "상단 확대":
-#         if is_percent_metric(selected_metric, all_vals):
-#             # 퍼센트 지표는 100 기준, 상단 확대
-#             default_upper = 100.0
-#             default_lower = max(0.0, vmax - 5)  # 마지막 5% 구간만 보여주기
-#             lower = st.slider("하한(%)", 0.0, 100.0, default_lower, 0.5)
-#             ax.set_ylim(lower, default_upper*1.05)
-
-#         else:
-#             # 일반 지표는 최대값 중심으로 확대
-#             margin = (vmax - vmin) * 0.1 if vmax > vmin else 1
-#             lo = st.slider(
-#                 "하한", min_value=vmin, max_value=vmax,
-#                 value=max(vmin, vmax - margin), step=0.1
-#             )
-#             ax.set_ylim(lo, vmax*1.1)
-
-
-#     elif view_mode == "로그 스케일(>0만)":
-#         # 로그스케일은 0 이하 값이 있으면 불가
-#         if (all_vals.dropna() <= 0).any():
-#             st.warning("로그 스케일은 0 이하 값에 적용할 수 없습니다. 다른 모드를 사용해 주세요.")
-#         else:
-#             ax.set_yscale("log")
-# =============================================================
-
-def wrap_label(s: str, width: int = 10) -> str:
-    s = str(s) if s is not None else ""
+def wrap_label(s, width=10):
+    s = str(s)
     return "\n".join(textwrap.wrap(s, width=width, break_long_words=False)) if s else s
 
-
-def is_percent_metric(name: str, series: pd.Series) -> bool:
+def is_percent_metric(name, series):
     if "%" in str(name):
         return True
     s = pd.to_numeric(series, errors="coerce").dropna()
     return (not s.empty) and s.min() >= 0 and s.max() <= 100
 
-
-def safe_min_max(series_like: pd.Series) -> tuple[float, float]:
-    vals = pd.to_numeric(series_like, errors="coerce")
-    if vals.notna().any():
-        vmin = float(np.nanmin(vals))
-        vmax = float(np.nanmax(vals))
-        if vmin == vmax:
-            vmax = vmin + 1.0
-    else:
-        vmin, vmax = 0.0, 1.0
-    return vmin, vmax
-
-
 if not st.session_state.selected.empty:
     selected_df = st.session_state.selected.copy()
-
-    # 정렬 옵션
-    sort_mode = st.selectbox("정렬", ["선택 순서 유지", "지표 내림차순", "지표 오름차순"])    
-    sel_vals = pd.to_numeric(selected_df[selected_metric], errors="coerce")
-    if sort_mode != "선택 순서 유지":
-        ascending = (sort_mode == "지표 오름차순")
-        order = sel_vals.sort_values(ascending=ascending).index
-        selected_df = selected_df.loc[order].reset_index(drop=True)
-        st.session_state.labels = [st.session_state.labels[i] for i in order]
-        sel_vals = pd.to_numeric(selected_df[selected_metric], errors="coerce")
-
+    selected_df[selected_metric] = pd.to_numeric(selected_df[selected_metric], errors="coerce")
+    values_raw = selected_df[selected_metric]
     labels_wrapped = [wrap_label(x) for x in st.session_state.labels]
 
-    # 보기 모드
-    view_mode = st.selectbox("표시 방식", ["원본", "상단 확대", "로그 스케일(>0)"])
+    # === 보기 모드 ===
+    view_mode = st.selectbox(
+        "표시 방식",
+        ["원본", "상단 확대", "로그 스케일(>0만)"]
+    )
 
-    # 통계값
-    base_for_stats = sel_vals.dropna()
-    mean = float(base_for_stats.mean()) if not base_for_stats.empty else np.nan
-    std = float(base_for_stats.std(ddof=1)) if not base_for_stats.empty else np.nan
+    # 평균/표준편차 계산 (NaN 제외)
+    base_for_stats = values_raw.dropna()
+    if base_for_stats.empty:
+        mean, std = np.nan, np.nan
+    else:
+        mean = float(base_for_stats.mean())
+        std  = float(base_for_stats.std(ddof=1))
 
     fig, ax = plt.subplots(figsize=(18, 10), dpi=200)
 
-    # ------------------------------------------
-    # A) 연구실적(두 지표 동시 막대)
-    # ------------------------------------------
-    dual_metrics = [
+    # ==========================================
+    # 연구실적(논문) → 막대 2개씩
+    # ==========================================
+    if selected_metric in [
         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
-        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계",
-    ]
-
-    if selected_metric in dual_metrics:
-        metrics_to_plot = dual_metrics
+        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
+    ]:
+        metrics_to_plot = [
+            "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
+            "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
+        ]
         legend_map = {
-            dual_metrics[0]: "연구재단 등재지(후보포함)",
-            dual_metrics[1]: "SCI/SCOPUS 학술지",
-        }
+        "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "연구재단 등재지(후보포함)",
+        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "SCI/SCOPUS 학술지"
+    }
+
+
         bar_width = 0.35
-        x = np.arange(len(selected_df))
+        x = np.arange(len(st.session_state.labels))
         colors = ["#dc0000", "#00005d"]
 
-        # 두 지표 값을 한 번에 모아 안전한 y-lim 계산 (기존 코드의 버그 수정)
-        vals_list = [pd.to_numeric(selected_df[m], errors="coerce") for m in metrics_to_plot]
-        all_vals_concat = pd.concat(vals_list) if vals_list else pd.Series(dtype=float)
-        ymax = float(np.nanmax(all_vals_concat)) if all_vals_concat.notna().any() else 1.0
-        ax.set_ylim(0, ymax * 1.15)
-
         for i, metric in enumerate(metrics_to_plot):
-            vals = pd.to_numeric(selected_df[metric], errors="coerce")
+                vals = pd.to_numeric(selected_df[metric], errors="coerce")
+                plot_vals = vals
 
-            # 평균/표준편차 (지표별)
-            base = vals.dropna()
-            if not base.empty:
-                m_i = float(base.mean())
-                s_i = float(base.std(ddof=1))
-                ax.axhline(m_i, color=colors[i], linestyle="--", linewidth=2, label=f"{legend_map[metric]} 평균: {m_i:.2f}")
-                ax.axhspan(m_i - s_i, m_i + s_i, alpha=0.15, color=colors[i], label="주요 분포 범위(±1σ)")
+                # --- 평균/표준편차 (NaN 제외) ---
+                base = vals.dropna()
+                if not base.empty:
+                    mean_i = float(base.mean())
+                    std_i  = float(base.std(ddof=1))
+                    ax.axhline(mean_i, color=colors[i], linestyle="--", linewidth=2,
+                            label=f"{legend_map[metric]} 평균: {mean_i:.2f}")
+                    ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i], label = '주요 분포 범위(±1σ)')
 
-            bars = ax.bar(x + i * bar_width, vals.fillna(0), width=bar_width, color=colors[i])
-            for bar, orig in zip(bars, vals):
-                h = bar.get_height()
-                label = "" if pd.isna(orig) else f"{orig:.1f}"
-                ax.text(bar.get_x() + bar.get_width() / 2, h + 0.02, label, ha="center", va="bottom", fontproperties=BAR_LABEL_FONT)
+                # --- 막대 ---
+                bars = ax.bar(x + i*bar_width, plot_vals.fillna(0), width=bar_width, color=colors[i])
 
-        ax.set_xticks(x + bar_width / 2)
-        ax.set_xticklabels([str(l).replace("\r\n", "\n").replace("\r", "\n") for l in st.session_state.labels], fontproperties=X_LABEL_FONT)
+                # --- 값 라벨 (NaN은 빈칸) ---
+                for bar, orig in zip(bars, vals):
+                    h = bar.get_height()
+                    label = "" if pd.isna(orig) else f"{orig:.1f}"
+                    ax.text(bar.get_x() + bar.get_width()/2, h + 0.02,
+                            label, ha="center", va="bottom",
+                            fontproperties=font_prop_bar_label)
+                    
+                # --- y축 상단 여백 확보 (두 지표의 최대값 기준) ---
+                all_max_candidates = max(
+                    pd.to_numeric(selected_df[m], errors="coerce").max(skipna=True)
+                    for m in metrics_to_plot
+                )
 
-    # ------------------------------------------
-    # B) 일반 지표 (단일 막대)
-    # ------------------------------------------
+                #유효한 값만 추출
+                all_max_valid = [v for v in all_max_candidates if pd.notna(v) and np.isfinite(v)]
+
+                if all_max_valid : # 유효한 값이 하나라도 있을 때
+                    all_max = max(all_max_valid)
+
+                else: #전부 nan값일때
+                    all_max = 1.0
+
+                ax.set_ylim(0, all_max * 1.15)
+
+
+        # --- X축 라벨 ---
+        ax.set_xticks(x + bar_width/2)
+        # X축 라벨 적용 (줄바꿈 허용)
+        ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
+                        fontproperties=font_prop_x_label)
+
+
+    # ==========================================
+    # 일반 지표 → 막대 1개
+    # ==========================================
     else:
+        plot_values = values_raw
         colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
 
-        # 평균/표준편차 표시
+        
+        # 평균선/±1σ
         if np.isfinite(mean) and np.isfinite(std):
             ax.axhline(mean, color="black", linestyle="--", linewidth=2, label=f"평균: {mean:.2f}")
             ax.axhspan(mean - std, mean + std, alpha=0.18, color="#ffcccc", label="주요 분포 범위(±1σ)")
 
-        bars = ax.bar(labels_wrapped, sel_vals.fillna(0), color=colors, width=0.3)
+        bars = ax.bar(labels_wrapped, plot_values.fillna(0), color=colors, width = 0.3)
 
-        if sel_vals.notna().any():
-            ymax = float(sel_vals.max())
-            if not np.isfinite(ymax):
+        # --- y축 상단 여백 확보 ---
+        if plot_values.notna().any():   # 유효한 값이 하나라도 있을 때
+            ymax = float(plot_values.max())
+            if not np.isfinite(ymax):   # inf 같은 값 대비
                 ymax = 1.0
         else:
-            ymax = 1.0
-        ax.set_ylim(0, ymax * 1.15)
+            ymax = 1.0   # 데이터가 전부 NaN일 때 기본값
+        ax.set_ylim(0, ymax * 1.15)   # 값의 15% 여유 공간 확보
 
+
+        # 값 라벨
         def _fmt(v):
-            if pd.isna(v):
-                return ""
+            if pd.isna(v): return ""
             return f"{v:.1f}"
-        ax.bar_label(bars, labels=[_fmt(v) for v in sel_vals], padding=6, fontproperties=BAR_LABEL_FONT)
+        ax.bar_label(bars, labels=[_fmt(v) for v in values_raw],
+                     padding=6, fontproperties=font_prop_bar_label)
+
+        # X축 라벨
         ax.tick_params(axis='x', labelsize=30)
         ax.tick_params(axis='y', labelsize=22)
-        ax.set_xticklabels([str(l).replace("\r\n", "\n").replace("\r", "\n") for l in st.session_state.labels], fontproperties=X_LABEL_FONT)
+        # X축 라벨 적용 (줄바꿈 허용)
+        ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
+                        fontproperties=font_prop_x_label)
 
-    # 보기 모드별 보정
-    # all_vals_for_mode: 현재 축에 올라간 모든 값 기준
-    if selected_metric in dual_metrics:
-        all_vals_for_mode = all_vals_concat
+    # === 모드별 추가 처리 (두 케이스 공통) ===
+    # 연구실적(2축)일 때와 일반(1축)일 때 모두에서 쓸 y값 범위 계산
+    if selected_metric in [
+        "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
+        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
+    ]:
+        metrics_to_plot = [
+            "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
+            "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
+        ]
+        all_vals = pd.concat([
+            pd.to_numeric(selected_df[m], errors="coerce")
+            for m in metrics_to_plot
+        ])
     else:
-        all_vals_for_mode = sel_vals
+        all_vals = pd.to_numeric(selected_df[selected_metric], errors="coerce")
 
-    vmin, vmax = safe_min_max(all_vals_for_mode)
+    # 안전한 min/max 계산 (전부 NaN인 경우 대비)
+    if all_vals.notna().any():
+        vmin = float(np.nanmin(all_vals))
+        vmax = float(np.nanmax(all_vals))
+        if vmin == vmax:
+            vmax = vmin + 1.0  # 슬라이더 에러 방지용
+    else:
+        vmin, vmax = 0.0, 1.0
 
     if view_mode == "상단 확대":
-        if is_percent_metric(selected_metric, all_vals_for_mode):
+        if is_percent_metric(selected_metric, all_vals):
+            # 퍼센트 지표는 100 기준, 상단 확대
             default_upper = 100.0
-            default_lower = max(0.0, vmax - 5)
+            default_lower = max(0.0, vmax - 5)  # 마지막 5% 구간만 보여주기
             lower = st.slider("하한(%)", 0.0, 100.0, default_lower, 0.5)
-            ax.set_ylim(lower, default_upper * 1.05)
-        else:
-            margin = (vmax - vmin) * 0.1 if vmax > vmin else 1
-            lo = st.slider("하한", min_value=vmin, max_value=vmax, value=max(vmin, vmax - margin), step=0.1)
-            ax.set_ylim(lo, vmax * 1.1)
+            ax.set_ylim(lower, default_upper*1.05)
 
-    elif view_mode == "로그 스케일(>0)":
-        if (pd.to_numeric(all_vals_for_mode, errors='coerce').dropna() <= 0).any():
+        else:
+            # 일반 지표는 최대값 중심으로 확대
+            margin = (vmax - vmin) * 0.1 if vmax > vmin else 1
+            lo = st.slider(
+                "하한", min_value=vmin, max_value=vmax,
+                value=max(vmin, vmax - margin), step=0.1
+            )
+            ax.set_ylim(lo, vmax*1.1)
+
+
+    elif view_mode == "로그 스케일(>0만)":
+        # 로그스케일은 0 이하 값이 있으면 불가
+        if (all_vals.dropna() <= 0).any():
             st.warning("로그 스케일은 0 이하 값에 적용할 수 없습니다. 다른 모드를 사용해 주세요.")
         else:
             ax.set_yscale("log")
+# =============================================================
 
-    # Y축 표시 토글
-    show_y = st.toggle("Y축 눈금 표시", value=False)
-    ax.get_yaxis().set_visible(show_y)
-
-    # 상단 제목 박스 + 타이틀
-    ax.add_patch(
-        patches.Rectangle((0, 1.02), 1, 0.15, transform=ax.transAxes, clip_on=False, facecolor="#dc0000", edgecolor="#dc0000")
-    )
-
-
-    # 공통 설정 (연구실적/일반 둘 다)
-    ax.get_yaxis().set_visible(False)
-    ax.legend(prop=legend_font)
 
     # 상단 제목 박스
     ax.add_patch(
