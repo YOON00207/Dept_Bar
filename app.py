@@ -299,32 +299,24 @@ if not st.session_state.selected.empty:
                             fontproperties=font_prop_bar_label)
                     
                 # # --- y축 상단 여백 확보 (두 지표의 최대값 기준) ---
-                # all_max_candidates = max(
-                #     pd.to_numeric(selected_df[m], errors="coerce").max(skipna=True)
-                #     for m in metrics_to_plot
-                # )
 
-                # #유효한 값만 추출
-                # all_max_valid = [v for v in all_max_candidates if pd.notna(v) and np.isfinite(v)]
 
-                # if all_max_valid : # 유효한 값이 하나라도 있을 때
-                #     all_max = max(all_max_valid)
-
-                # else: #전부 nan값일때
-                #     all_max = 1.0
-
-                # ax.set_ylim(0, all_max * 1.15)
+                # 각 지표별 최댓값 추출(숫자로 강제)
                 all_max_candidates = [
                     pd.to_numeric(selected_df[m], errors="coerce").max(skipna=True)
                     for m in metrics_to_plot
                 ]
 
-                # 유효한 값만 추출
-                all_max_valid = [v for v in all_max_candidates if pd.notna(v) and np.isfinite(v)]
+                # 리스트 -> 시리즈로 바꿔 한 번 더 숫자화(비수치/NA 제거)
+                s = pd.to_numeric(pd.Series(all_max_candidates), errors="coerce")
 
-                if all_max_valid:  # 유효한 값이 하나라도 있을 때
-                    all_max = max(all_max_valid)
-                else:  # 전부 nan값일때
+                # 모두 NaN이면 기본값 1.0, 아니면 NaN 무시 최댓값
+                if s.notna().any():
+                    all_max = float(np.nanmax(s.values))
+                    # 혹시 무한대가 섞였으면 가드
+                    if not np.isfinite(all_max):
+                        all_max = 1.0
+                else:
                     all_max = 1.0
 
                 ax.set_ylim(0, all_max * 1.15)
