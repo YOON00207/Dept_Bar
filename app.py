@@ -428,7 +428,10 @@ if not st.session_state.selected.empty:
             ax.set_yscale("log")
 # =============================================================
 
-
+        # 공통 설정 (연구실적/일반 둘 다)
+    ax.get_yaxis().set_visible(False)
+    ax.legend(prop=legend_font)
+    
     # 상단 제목 박스
     ax.add_patch(
         patches.Rectangle(
