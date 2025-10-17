@@ -21,7 +21,6 @@ plt.rcParams['axes.unicode_minus'] = False
 # ---------------------------------------
 # 1. 데이터 불러오기
 # ---------------------------------------
-
 files = {
     "2023 데이터": "0918학과경쟁력분석전체대학데이터셋.xlsx",
     "2024 데이터(졸업생 취업률 및 진학률은 2023년도 기준)": "2024대학데이터셋.xlsx"
@@ -45,6 +44,7 @@ st.title("학과경쟁력분석")
 # ---------------------------------------
 numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
 selected_metric = st.selectbox("지표 선택", numeric_cols)
+
 # ---------------------------------------
 # 3. 학교 + 학과 검색 (str.contains)
 # ---------------------------------------
@@ -77,9 +77,7 @@ selected_schools = st.multiselect("학교 선택 (여러 개 가능)", ["전체"
 # -------------------------
 search_keyword = st.text_input("학과 검색어 입력")
 
-# -------------------------
 # 조건 결합
-# -------------------------
 if "전체" in selected_schools or not selected_schools:
     search_results = df.copy()
 else:
@@ -156,7 +154,6 @@ if "labels" not in st.session_state:
     st.session_state.labels = []
 
 
-
 # ---------------------------------------
 # 5. 선택 확정 (추가 버튼)
 # ---------------------------------------
@@ -173,23 +170,9 @@ if st.button('추가'):
         st.success(f"{len(checked)}개 학과 추가 완료!")
 
 
-
 # ---------------------------------------
-# 6. 새로운 데이터 직접 추가 (체크박스 → 필요할 때만)
+# 6. 새로운 데이터 직접 추가 (필요할 때만)
 # ---------------------------------------
-# if st.checkbox("새로운 데이터 직접 추가"):
-#     st.subheader("신규 데이터 입력")
-#     new_school = st.text_input("학교명 입력")
-#     new_major = st.text_input("학과명 입력")
-#     new_values = {}
-#     for col in numeric_cols:
-#         new_values[col] = st.number_input(f"{col} 값 입력", value=0.0, key=f"new_{col}")
-#     if st.button("신규 데이터 추가"):
-#         new_row = pd.DataFrame([{**{"학교": new_school, "학과": new_major}, **new_values}])
-#         st.session_state.selected = pd.concat([st.session_state.selected, new_row], ignore_index=True)
-#         st.session_state.labels.append(new_major)
-#         st.success(f"{new_school} - {new_major} (신규 데이터) 추가 완료!")
-
 with st.expander("새로운 데이터 직접 추가"):
     new_school = st.text_input("학교명 입력", key="new_school")
     new_major = st.text_input("학과명 입력", key="new_major")
@@ -216,7 +199,6 @@ if st.session_state.selected.shape[0] > 0:
 # ---------------------------------------
 # 8. 그래프 그리기  (줄바꿈/폰트/사이즈 강화)
 # ---------------------------------------
-
 legend_font = fm.FontProperties(fname=font_path2, size=38, weight = "bold")
 font_prop_x_label = fm.FontProperties(fname=font_path2, size=30, weight="bold")
 font_prop_bar_label = fm.FontProperties(fname=font_path2, size=35, weight="bold")
@@ -253,145 +235,142 @@ if not st.session_state.selected.empty:
 
     fig, ax = plt.subplots(figsize=(18, 10), dpi=200)
 
-    # ==========================================
-    # 연구실적(논문) → 막대 2개씩
-    # ==========================================
-    if selected_metric in [
-        "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
-        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
-    ]:
-        metrics_to_plot = [
-            "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
-            "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
-        ]
-        legend_map = {
-        "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "연구재단 등재지(후보포함)",
-        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "SCI/SCOPUS 학술지"
-    }
+    # # ==========================================
+    # # 연구실적(논문) → 막대 2개씩
+    # # ==========================================
+    # if selected_metric in [
+    #     "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
+    #     "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
+    # ]:
+    #     metrics_to_plot = [
+    #         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
+    #         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
+    #     ]
+    #     legend_map = {
+    #     "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "연구재단 등재지(후보포함)",
+    #     "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "SCI/SCOPUS 학술지"
+    # }
 
 
-        bar_width = 0.35
-        x = np.arange(len(st.session_state.labels))
-        colors = ["#dc0000", "#00005d"]
+    #     bar_width = 0.35
+    #     x = np.arange(len(st.session_state.labels))
+    #     colors = ["#dc0000", "#00005d"]
 
-        for i, metric in enumerate(metrics_to_plot):
-                vals = pd.to_numeric(selected_df[metric], errors="coerce")
-                plot_vals = vals
+    #     for i, metric in enumerate(metrics_to_plot):
+    #             vals = pd.to_numeric(selected_df[metric], errors="coerce")
+    #             plot_vals = vals
 
-                # --- 평균/표준편차 (NaN 제외) ---
-                base = vals.dropna()
-                if not base.empty:
-                    mean_i = float(base.mean())
-                    std_i  = float(base.std(ddof=1))
-                    ax.axhline(mean_i, color=colors[i], linestyle="--", linewidth=2,
-                            label=f"{legend_map[metric]} 평균: {mean_i:.2f}")
-                    ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i], label = '주요 분포 범위(±1σ)')
+    #             # --- 평균/표준편차 (NaN 제외) ---
+    #             base = vals.dropna()
 
-                # --- 막대 ---
-                # bars = ax.bar(x + i*bar_width, plot_vals.fillna(0), width=bar_width, color=colors[i])
-                bars = ax.bar(
-                    x + i*bar_width,
-                    plot_vals.fillna(0),
-                    width=bar_width,
-                    color=colors[i],
-                    label=legend_map[metric]   # ✅ 범례용 라벨 추가
-                )
+    #             if not base.empty:
+    #                 mean_i = float(base.mean())
+    #                 std_i  = float(base.std(ddof=1))
+    #                 ax.axhline(mean_i, color=colors[i], linestyle="--", linewidth=2,
+    #                         label=f"{legend_map[metric]} 평균: {mean_i:.2f}")
+    #                 ax.axhspan(mean_i - std_i, mean_i + std_i, alpha=0.15, color=colors[i], label = '주요 분포 범위(±1σ)')
 
+    #             # --- 막대 ---
+    #             # bars = ax.bar(x + i*bar_width, plot_vals.fillna(0), width=bar_width, color=colors[i])
+    #             bars = ax.bar(
+    #                 x + i*bar_width,
+    #                 plot_vals.fillna(0),
+    #                 width=bar_width,
+    #                 color=colors[i]
+    #             )
 
-                # --- 값 라벨 (NaN은 빈칸) ---
-                for bar, orig in zip(bars, vals):
-                    h = bar.get_height()
-                    label = "" if pd.isna(orig) else f"{orig:.3f}"
-                    ax.text(bar.get_x() + bar.get_width()/2, h + 0.02,
-                            label, ha="center", va="bottom",
-                            fontproperties=font_prop_bar_label)
+    #             # --- 값 라벨 (NaN은 빈칸) ---
+    #             for bar, orig in zip(bars, vals):
+    #                 h = bar.get_height()
+    #                 label = "" if pd.isna(orig) else f"{orig:.3f}"
+    #                 ax.text(bar.get_x() + bar.get_width()/2, h + 0.02,
+    #                         label, ha="center", va="bottom",
+    #                         fontproperties=font_prop_bar_label)
                     
-                # # --- y축 상단 여백 확보 (두 지표의 최대값 기준) ---
+    #             # # --- y축 상단 여백 확보 (두 지표의 최대값 기준) ---
+
+    #             # 각 지표별 최댓값 추출(숫자로 강제)
+    #             all_max_candidates = [
+    #                 pd.to_numeric(selected_df[m], errors="coerce").max(skipna=True)
+    #                 for m in metrics_to_plot
+    #             ]
+
+    #             # 리스트 -> 시리즈로 바꿔 한 번 더 숫자화(비수치/NA 제거)
+    #             s = pd.to_numeric(pd.Series(all_max_candidates), errors="coerce")
+
+    #             # 모두 NaN이면 기본값 1.0, 아니면 NaN 무시 최댓값
+    #             if s.notna().any():
+    #                 all_max = float(np.nanmax(s.values))
+    #                 # 혹시 무한대가 섞였으면 가드
+    #                 if not np.isfinite(all_max):
+    #                     all_max = 1.0
+    #             else:
+    #                 all_max = 1.0
+
+    #             ax.set_ylim(0, all_max * 1.15)
 
 
-                # 각 지표별 최댓값 추출(숫자로 강제)
-                all_max_candidates = [
-                    pd.to_numeric(selected_df[m], errors="coerce").max(skipna=True)
-                    for m in metrics_to_plot
-                ]
-
-                # 리스트 -> 시리즈로 바꿔 한 번 더 숫자화(비수치/NA 제거)
-                s = pd.to_numeric(pd.Series(all_max_candidates), errors="coerce")
-
-                # 모두 NaN이면 기본값 1.0, 아니면 NaN 무시 최댓값
-                if s.notna().any():
-                    all_max = float(np.nanmax(s.values))
-                    # 혹시 무한대가 섞였으면 가드
-                    if not np.isfinite(all_max):
-                        all_max = 1.0
-                else:
-                    all_max = 1.0
-
-                ax.set_ylim(0, all_max * 1.15)
+    #     # --- X축 라벨 ---
+    #     ax.set_xticks(x + bar_width/2)
+    #     # X축 라벨 적용 (줄바꿈 허용)
+    #     ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
+    #                     fontproperties=font_prop_x_label)
 
 
-        # --- X축 라벨 ---
-        ax.set_xticks(x + bar_width/2)
-        # X축 라벨 적용 (줄바꿈 허용)
-        ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
-                        fontproperties=font_prop_x_label)
-
-
-    # ==========================================
-    # 일반 지표 → 막대 1개
-    # ==========================================
-    else:
-        plot_values = values_raw
-        colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
+    # # ==========================================
+    # # 일반 지표 → 막대 1개
+    # # ==========================================
+    # else:
+    plot_values = values_raw
+    colors = ["#dc0000"] + ["#d8d8d8"] * (len(selected_df) - 1)
 
         
-        # 평균선/±1σ
-        if np.isfinite(mean) and np.isfinite(std):
+    # 평균선/±1σ
+    if np.isfinite(mean) and np.isfinite(std):
             ax.axhline(mean, color="black", linestyle="--", linewidth=2, label=f"평균: {mean:.2f}")
             ax.axhspan(mean - std, mean + std, alpha=0.18, color="#ffcccc", label="주요 분포 범위(±1σ)")
 
-        bars = ax.bar(labels_wrapped, plot_values.fillna(0), color=colors, width = 0.3)
+    bars = ax.bar(labels_wrapped, plot_values.fillna(0), color=colors, width = 0.3)
 
-        # --- y축 상단 여백 확보 ---
-        if plot_values.notna().any():   # 유효한 값이 하나라도 있을 때
-            ymax = float(plot_values.max())
-            if not np.isfinite(ymax):   # inf 같은 값 대비
-                ymax = 1.0
+    # --- y축 상단 여백 확보 ---
+    if plot_values.notna().any():   # 유효한 값이 하나라도 있을 때
+        ymax = float(plot_values.max())
+        if not np.isfinite(ymax):   # inf 같은 값 대비
+            ymax = 1.0
         else:
             ymax = 1.0   # 데이터가 전부 NaN일 때 기본값
         ax.set_ylim(0, ymax * 1.15)   # 값의 15% 여유 공간 확보
 
 
-        # 값 라벨
-        def _fmt(v):
-            if pd.isna(v): return ""
-            return f"{v:.1f}"
-        ax.bar_label(bars, labels=[_fmt(v) for v in values_raw],
+    # 값 라벨
+    def _fmt(v):
+        if pd.isna(v): return ""
+        return f"{v:.1f}"
+    ax.bar_label(bars, labels=[_fmt(v) for v in values_raw],
                      padding=6, fontproperties=font_prop_bar_label)
 
-        # X축 라벨
-        ax.tick_params(axis='x', labelsize=30)
-        ax.tick_params(axis='y', labelsize=22)
-        # X축 라벨 적용 (줄바꿈 허용)
-        ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels],
-                        fontproperties=font_prop_x_label)
+    # X축 라벨
+    ax.tick_params(axis='x', labelsize=30)
+    ax.tick_params(axis='y', labelsize=22)
+    # X축 라벨 적용 (줄바꿈 허용)
+    ax.set_xticklabels([label.replace("\r\n", "\n").replace("\r", "\n") for label in st.session_state.labels], fontproperties=font_prop_x_label)
 
     # === 모드별 추가 처리 (두 케이스 공통) ===
     # 연구실적(2축)일 때와 일반(1축)일 때 모두에서 쓸 y값 범위 계산
-    if selected_metric in [
-        "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
-        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
-    ]:
-        metrics_to_plot = [
-            "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
-            "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
-        ]
-        all_vals = pd.concat([
-            pd.to_numeric(selected_df[m], errors="coerce")
-            for m in metrics_to_plot
-        ])
-    else:
-        all_vals = pd.to_numeric(selected_df[selected_metric], errors="coerce")
+    # if selected_metric in [
+    #     "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
+    #     "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
+    # ]:
+    #     metrics_to_plot = [
+    #         "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계",
+    #         "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계"
+    #     ]
+    #     all_vals = pd.concat([
+    #         pd.to_numeric(selected_df[m], errors="coerce")
+    #         for m in metrics_to_plot
+    #     ])
+    # else:
+    all_vals = pd.to_numeric(selected_df[selected_metric], errors="coerce")
 
     # 안전한 min/max 계산 (전부 NaN인 경우 대비)
     if all_vals.notna().any():
@@ -428,10 +407,10 @@ if not st.session_state.selected.empty:
             ax.set_yscale("log")
 # =============================================================
 
-        # 공통 설정 (연구실적/일반 둘 다)
+    # 공통 설정 (연구실적/일반 둘 다)
     ax.get_yaxis().set_visible(False)
     ax.legend(prop=legend_font)
-    
+
     # 상단 제목 박스
     ax.add_patch(
         patches.Rectangle(
@@ -451,10 +430,11 @@ if not st.session_state.selected.empty:
         "캡스톤디자인 평균이수학생수" : "캡스톤디자인 평균 이수 학생 수 (2023년 기준, 단위 : 명)",
         "졸업생 취업률(%)" : "졸업생 취업률 (2023년 기준, 단위 : %)",
         "졸업생 진학률(%)" : "졸업생 진학률 (2023년 기준, 단위 : %)",
-        "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "교원 1인당 연구실적 (2023년 기준)",
-        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "교원 1인당 연구실적 (2023년 기준)",
+        "전임교원 1인당 논문 실적 연구재단등재지(후보포함) 계": "교원 1인당 논문 실적 연구재단등재지(후보포함) (2023년 기준)",
+        "전임교원 1인당 논문 실적 SCI급/SCOPUS학술지 계": "교원 1인당 논문 실적 SCI급/SCOPUS학술지 (2023년 기준)",
         "1인당 연구비(천원)": "교원 1인당 연구비 (2023년 기준, 단위 : 천원)"
     }
+
     # title_override 변수를 사용자가 선택할 수 있도록 설정 (예: Streamlit selectbox 등과 연동 가능)
     # 제목 수정 칸 (기본값은 빈칸, placeholder로 안내 문구)
     title_override = st.text_input("차트 제목 수정", value="", placeholder="여기에 제목을 입력하세요")
