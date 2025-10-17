@@ -344,8 +344,16 @@ if not st.session_state.selected.empty:
 
     # 값 라벨
     def _fmt(v):
-        if pd.isna(v): return ""
-        return f"{v:.1f}"
+        if pd.isna(v):
+            return ""
+        # 연구실적 지표일 때는 소수점 3자리, 그 외는 1자리
+        if any(keyword in selected_metric for keyword in [
+            "논문", "연구재단", "SCI", "SCOPUS"
+        ]):
+            return f"{v:.3f}"
+        else:
+            return f"{v:.1f}"
+        
     ax.bar_label(bars, labels=[_fmt(v) for v in values_raw],
                      padding=6, fontproperties=font_prop_bar_label)
 
