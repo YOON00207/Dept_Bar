@@ -339,7 +339,7 @@ if not st.session_state.selected.empty:
             ymax = 1.0
         else:
             ymax = 1.0   # 데이터가 전부 NaN일 때 기본값
-        ax.set_ylim(0, ymax * 1.15)   # 값의 15% 여유 공간 확보
+    ax.set_ylim(0, ymax * 1.15)   # 값의 15% 여유 공간 확보
 
 
     # 값 라벨
